@@ -7,7 +7,7 @@ A **log file** represents a record of events in a computer system or network. Ea
 **Audit mechanisms** represent monitoring, analyzing, and proving the flow of events in the system with the aim of detecting potential security risks, such as unauthorized access attempts, malicious behavior, authentication errors, and data manipulations.
 
 In this work, I will focus on the analysis and research of how and in which ways it is possible to design a logging mechanism that fulfills the following requirements: efficient problem solving, actor identification or system non-repudiation, protection of sensitive data, reliability, time precision, and log clarity.  
----
+
 
 ### 1\. Information Required for Problem Solving
 
