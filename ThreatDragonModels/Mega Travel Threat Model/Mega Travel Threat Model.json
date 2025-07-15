@@ -1,272 +1,141 @@
 {
-  "version": "2.4.1",
   "summary": {
-    "title": "Mega Travel Threat Model",
-    "owner": "",
-    "description": "",
-    "id": 0
+    "title": "MegaTravel Threat Model",
+    "owner": "Team MegaTravel",
+    "description": "Threat model for MegaTravel reservation system",
+    "reviewer": "Security Architect",
+    "contributors": [],
+    "diagramType": "DFD"
   },
   "detail": {
-    "contributors": [
-      {
-        "name": "adamoviccj"
-      },
-      {
-        "name": "trami25"
-      }
-    ],
     "diagrams": [
       {
-        "id": 2,
-        "title": "New STRIDE diagram",
-        "diagramType": "STRIDE",
-        "placeholder": "New STRIDE diagram description",
-        "thumbnail": "./public/content/images/thumbnail.stride.jpg",
-        "version": "2.4.1",
-        "cells": [
+        "title": "MegaTravel Reservation Flow",
+        "diagramType": "DFD",
+        "elements": [
           {
-            "position": {
-              "x": 440,
-              "y": 90
-            },
-            "size": {
-              "width": 112.5,
-              "height": 60
-            },
-            "attrs": {
-              "body": {
-                "stroke": "#333333",
-                "strokeWidth": 1.5,
-                "strokeDasharray": null
-              }
-            },
-            "visible": true,
-            "shape": "actor",
-            "zIndex": 1,
-            "ports": {
-              "groups": {
-                "top": {
-                  "position": "top",
-                  "attrs": {
-                    "circle": {
-                      "r": 4,
-                      "magnet": true,
-                      "stroke": "#5F95FF",
-                      "strokeWidth": 1,
-                      "fill": "#fff",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  }
-                },
-                "right": {
-                  "position": "right",
-                  "attrs": {
-                    "circle": {
-                      "r": 4,
-                      "magnet": true,
-                      "stroke": "#5F95FF",
-                      "strokeWidth": 1,
-                      "fill": "#fff",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  }
-                },
-                "bottom": {
-                  "position": "bottom",
-                  "attrs": {
-                    "circle": {
-                      "r": 4,
-                      "magnet": true,
-                      "stroke": "#5F95FF",
-                      "strokeWidth": 1,
-                      "fill": "#fff",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  }
-                },
-                "left": {
-                  "position": "left",
-                  "attrs": {
-                    "circle": {
-                      "r": 4,
-                      "magnet": true,
-                      "stroke": "#5F95FF",
-                      "strokeWidth": 1,
-                      "fill": "#fff",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  }
-                }
-              },
-              "items": [
-                {
-                  "group": "top",
-                  "id": "393c2e94-2f9c-4ec1-8280-151ee120febc"
-                },
-                {
-                  "group": "right",
-                  "id": "2ec210d9-af75-451b-8855-435e52fc9a47"
-                },
-                {
-                  "group": "bottom",
-                  "id": "61092f09-43b5-4f48-9259-c6ac5cba87ab"
-                },
-                {
-                  "group": "left",
-                  "id": "03a2d92c-bfeb-4882-8029-4ec0db43b8d1"
-                }
-              ]
-            },
-            "id": "b98eb849-6743-4dfc-9adf-1d157567ec8d",
-            "data": {
-              "type": "tm.Actor",
-              "name": "Actor",
-              "description": "",
-              "isTrustBoundary": false,
-              "outOfScope": false,
-              "reasonOutOfScope": "",
-              "hasOpenThreats": false,
-              "providesAuthentication": false,
-              "threats": []
-            }
+            "id": "actor-browser",
+            "name": "Browser",
+            "type": "Actor",
+            "outOfScope": false,
+            "description": "End user browser"
           },
           {
-            "position": {
-              "x": 330,
-              "y": 80
-            },
-            "size": {
-              "width": 60,
-              "height": 60
-            },
-            "attrs": {
-              "body": {
-                "stroke": "#333333",
-                "strokeWidth": 1.5,
-                "strokeDasharray": null
-              }
-            },
-            "visible": true,
-            "shape": "process",
-            "ports": {
-              "groups": {
-                "top": {
-                  "position": "top",
-                  "attrs": {
-                    "circle": {
-                      "r": 4,
-                      "magnet": true,
-                      "stroke": "#5F95FF",
-                      "strokeWidth": 1,
-                      "fill": "#fff",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  }
-                },
-                "right": {
-                  "position": "right",
-                  "attrs": {
-                    "circle": {
-                      "r": 4,
-                      "magnet": true,
-                      "stroke": "#5F95FF",
-                      "strokeWidth": 1,
-                      "fill": "#fff",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  }
-                },
-                "bottom": {
-                  "position": "bottom",
-                  "attrs": {
-                    "circle": {
-                      "r": 4,
-                      "magnet": true,
-                      "stroke": "#5F95FF",
-                      "strokeWidth": 1,
-                      "fill": "#fff",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  }
-                },
-                "left": {
-                  "position": "left",
-                  "attrs": {
-                    "circle": {
-                      "r": 4,
-                      "magnet": true,
-                      "stroke": "#5F95FF",
-                      "strokeWidth": 1,
-                      "fill": "#fff",
-                      "style": {
-                        "visibility": "hidden"
-                      }
-                    }
-                  }
-                }
-              },
-              "items": [
-                {
-                  "group": "top",
-                  "id": "90c471ba-75b7-41a2-a770-a16f8f287cf7"
-                },
-                {
-                  "group": "right",
-                  "id": "83933efc-45f2-4fcf-86a2-7c1b49a44502"
-                },
-                {
-                  "group": "bottom",
-                  "id": "f59a95f8-4928-4bdc-a75c-e1894a08dded"
-                },
-                {
-                  "group": "left",
-                  "id": "3b373653-9f90-4801-ac58-da5a91e65d25"
-                }
-              ]
-            },
-            "id": "43ac97e7-3602-4eac-b33f-ec0d48a7ad13",
-            "zIndex": 2,
-            "data": {
-              "type": "tm.Process",
-              "name": "Process",
-              "description": "",
-              "outOfScope": false,
-              "isTrustBoundary": false,
-              "reasonOutOfScope": "",
-              "hasOpenThreats": false,
-              "handlesCardPayment": false,
-              "handlesGoodsOrServices": false,
-              "isWebApplication": false,
-              "privilegeLevel": "",
-              "threats": []
-            },
-            "tools": {
-              "items": [
-                "boundary",
-                "button-remove"
-              ],
-              "name": null
-            }
+            "id": "process-webapp",
+            "name": "Web Application",
+            "type": "Process",
+            "outOfScope": false,
+            "description": "Web/API frontend"
+          },
+          {
+            "id": "process-worker",
+            "name": "Background Worker Process",
+            "type": "Process",
+            "outOfScope": false,
+            "description": "Processes reservations and payments"
+          },
+          {
+            "id": "datastore-db",
+            "name": "Reservations Database",
+            "type": "DataStore",
+            "outOfScope": false,
+            "description": "Stores reservation records"
+          },
+          {
+            "id": "datastore-config",
+            "name": "Config Store",
+            "type": "DataStore",
+            "outOfScope": false,
+            "description": "Secrets and configuration"
+          },
+          {
+            "id": "external-payment",
+            "name": "Payment Processor",
+            "type": "ExternalEntity",
+            "outOfScope": false,
+            "description": "External payment gateway"
+          },
+          {
+            "id": "external-queue",
+            "name": "Message Queue",
+            "type": "ExternalEntity",
+            "outOfScope": false,
+            "description": "Queue for processing reservations"
+          }
+        ],
+        "flows": [
+          {
+            "id": "flow1",
+            "name": "Web Request",
+            "source": "actor-browser",
+            "target": "process-webapp",
+            "description": "HTTPS request from user"
+          },
+          {
+            "id": "flow2",
+            "name": "Web Response",
+            "source": "process-webapp",
+            "target": "actor-browser",
+            "description": "Response to user"
+          },
+          {
+            "id": "flow3",
+            "name": "Put Reservation Message",
+            "source": "process-webapp",
+            "target": "external-queue",
+            "description": "Send reservation to queue"
+          },
+          {
+            "id": "flow4",
+            "name": "Process Message",
+            "source": "external-queue",
+            "target": "process-worker",
+            "description": "Worker receives message"
+          },
+          {
+            "id": "flow5",
+            "name": "Update Reservation",
+            "source": "process-worker",
+            "target": "datastore-db",
+            "description": "Update reservation status"
+          },
+          {
+            "id": "flow6",
+            "name": "Access Config",
+            "source": "process-webapp",
+            "target": "datastore-config",
+            "description": "Read configuration"
+          },
+          {
+            "id": "flow7",
+            "name": "Access Config",
+            "source": "process-worker",
+            "target": "datastore-config",
+            "description": "Read worker configuration"
+          },
+          {
+            "id": "flow8",
+            "name": "Payment API Call",
+            "source": "process-worker",
+            "target": "external-payment",
+            "description": "Initiate payment"
+          }
+        ],
+        "boundaries": [
+          {
+            "id": "boundary-dmz",
+            "name": "DMZ",
+            "description": "Public-facing DMZ zone",
+            "type": "TrustBoundary"
+          },
+          {
+            "id": "boundary-internal",
+            "name": "Internal Network",
+            "description": "Internal trusted network",
+            "type": "TrustBoundary"
           }
         ]
       }
-    ],
-    "diagramTop": 3,
-    "reviewer": "",
-    "threatTop": 0
+    ]
   }
 }
