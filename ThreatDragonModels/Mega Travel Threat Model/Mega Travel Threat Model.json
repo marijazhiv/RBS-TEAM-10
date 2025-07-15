@@ -1,141 +1,148 @@
 {
+  "version": "2.4.1",
   "summary": {
-    "title": "MegaTravel Threat Model",
+    "title": "Mega Travel Threat Model",
     "owner": "Team MegaTravel",
-    "description": "Threat model for MegaTravel reservation system",
-    "reviewer": "Security Architect",
-    "contributors": [],
-    "diagramType": "DFD"
+    "description": "Threat model for MegaTravel reservation processing",
+    "id": 0
   },
   "detail": {
+    "contributors": [
+      {
+        "name": "adamoviccj"
+      },
+      {
+        "name": "trami25"
+      }
+    ],
     "diagrams": [
       {
-        "title": "MegaTravel Reservation Flow",
+        "id": 1,
+        "title": "Reservation Processing DFD",
         "diagramType": "DFD",
-        "elements": [
+        "placeholder": "Data Flow Diagram for reservation flow",
+        "thumbnail": "./public/content/images/thumbnail.dfd.jpg",
+        "version": "2.4.1",
+        "cells": [
           {
-            "id": "actor-browser",
-            "name": "Browser",
-            "type": "Actor",
-            "outOfScope": false,
-            "description": "End user browser"
+            "position": { "x": 80, "y": 200 },
+            "size": { "width": 112.5, "height": 60 },
+            "shape": "actor",
+            "id": "browser",
+            "data": {
+              "type": "tm.Actor",
+              "name": "Browser",
+              "description": "Customer browser accessing the website",
+              "outOfScope": false
+            }
           },
           {
-            "id": "process-webapp",
-            "name": "Web Application",
-            "type": "Process",
-            "outOfScope": false,
-            "description": "Web/API frontend"
+            "position": { "x": 300, "y": 200 },
+            "size": { "width": 80, "height": 80 },
+            "shape": "process",
+            "id": "webapp",
+            "data": {
+              "type": "tm.Process",
+              "name": "Web Application",
+              "description": "Handles incoming HTTP requests",
+              "outOfScope": false
+            }
           },
           {
-            "id": "process-worker",
-            "name": "Background Worker Process",
-            "type": "Process",
-            "outOfScope": false,
-            "description": "Processes reservations and payments"
+            "position": { "x": 500, "y": 100 },
+            "size": { "width": 80, "height": 80 },
+            "shape": "process",
+            "id": "worker",
+            "data": {
+              "type": "tm.Process",
+              "name": "Background Worker Process",
+              "description": "Processes reservations and payments",
+              "outOfScope": false
+            }
           },
           {
-            "id": "datastore-db",
-            "name": "Reservations Database",
-            "type": "DataStore",
-            "outOfScope": false,
-            "description": "Stores reservation records"
+            "position": { "x": 500, "y": 300 },
+            "size": { "width": 80, "height": 60 },
+            "shape": "datastore",
+            "id": "db",
+            "data": {
+              "type": "tm.DataStore",
+              "name": "Reservations Database",
+              "description": "Stores reservations and transactions",
+              "outOfScope": false
+            }
           },
           {
-            "id": "datastore-config",
-            "name": "Config Store",
-            "type": "DataStore",
-            "outOfScope": false,
-            "description": "Secrets and configuration"
+            "position": { "x": 700, "y": 200 },
+            "size": { "width": 80, "height": 60 },
+            "shape": "externalentity",
+            "id": "payment",
+            "data": {
+              "type": "tm.ExternalEntity",
+              "name": "Payment Processor",
+              "description": "External payment gateway",
+              "outOfScope": false
+            }
           },
           {
-            "id": "external-payment",
-            "name": "Payment Processor",
-            "type": "ExternalEntity",
-            "outOfScope": false,
-            "description": "External payment gateway"
+            "position": { "x": 300, "y": 50 },
+            "size": { "width": 80, "height": 60 },
+            "shape": "externalentity",
+            "id": "queue",
+            "data": {
+              "type": "tm.ExternalEntity",
+              "name": "Message Queue",
+              "description": "Queue for async processing",
+              "outOfScope": false
+            }
           },
           {
-            "id": "external-queue",
-            "name": "Message Queue",
-            "type": "ExternalEntity",
-            "outOfScope": false,
-            "description": "Queue for processing reservations"
-          }
-        ],
-        "flows": [
-          {
+            "shape": "flow",
             "id": "flow1",
-            "name": "Web Request",
-            "source": "actor-browser",
-            "target": "process-webapp",
-            "description": "HTTPS request from user"
+            "source": { "cell": "browser", "port": "right" },
+            "target": { "cell": "webapp", "port": "left" },
+            "data": { "name": "HTTPS Request" }
           },
           {
+            "shape": "flow",
             "id": "flow2",
-            "name": "Web Response",
-            "source": "process-webapp",
-            "target": "actor-browser",
-            "description": "Response to user"
+            "source": { "cell": "webapp", "port": "left" },
+            "target": { "cell": "browser", "port": "right" },
+            "data": { "name": "HTTPS Response" }
           },
           {
+            "shape": "flow",
             "id": "flow3",
-            "name": "Put Reservation Message",
-            "source": "process-webapp",
-            "target": "external-queue",
-            "description": "Send reservation to queue"
+            "source": { "cell": "webapp", "port": "top" },
+            "target": { "cell": "queue", "port": "bottom" },
+            "data": { "name": "Put Reservation Message" }
           },
           {
+            "shape": "flow",
             "id": "flow4",
-            "name": "Process Message",
-            "source": "external-queue",
-            "target": "process-worker",
-            "description": "Worker receives message"
+            "source": { "cell": "queue", "port": "bottom" },
+            "target": { "cell": "worker", "port": "top" },
+            "data": { "name": "Process Message" }
           },
           {
+            "shape": "flow",
             "id": "flow5",
-            "name": "Update Reservation",
-            "source": "process-worker",
-            "target": "datastore-db",
-            "description": "Update reservation status"
+            "source": { "cell": "worker", "port": "bottom" },
+            "target": { "cell": "db", "port": "top" },
+            "data": { "name": "Update Reservation" }
           },
           {
+            "shape": "flow",
             "id": "flow6",
-            "name": "Access Config",
-            "source": "process-webapp",
-            "target": "datastore-config",
-            "description": "Read configuration"
-          },
-          {
-            "id": "flow7",
-            "name": "Access Config",
-            "source": "process-worker",
-            "target": "datastore-config",
-            "description": "Read worker configuration"
-          },
-          {
-            "id": "flow8",
-            "name": "Payment API Call",
-            "source": "process-worker",
-            "target": "external-payment",
-            "description": "Initiate payment"
-          }
-        ],
-        "boundaries": [
-          {
-            "id": "boundary-dmz",
-            "name": "DMZ",
-            "description": "Public-facing DMZ zone",
-            "type": "TrustBoundary"
-          },
-          {
-            "id": "boundary-internal",
-            "name": "Internal Network",
-            "description": "Internal trusted network",
-            "type": "TrustBoundary"
+            "source": { "cell": "worker", "port": "right" },
+            "target": { "cell": "payment", "port": "left" },
+            "data": { "name": "Payment API Call" }
           }
         ]
       }
-    ]
+    ],
+    "diagramTop": 2,
+    "reviewer": "Security Architect",
+    "threatTop": 0
   }
 }
