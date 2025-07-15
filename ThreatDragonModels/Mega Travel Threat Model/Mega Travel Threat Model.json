@@ -427,57 +427,6 @@
             "connector": "smooth",
             "data": {
               "type": "tm.Flow",
-              "name": "Web request HTTP(S)",
-              "description": "",
-              "outOfScope": false,
-              "isTrustBoundary": false,
-              "reasonOutOfScope": "",
-              "hasOpenThreats": false,
-              "isBidirectional": false,
-              "isEncrypted": false,
-              "isPublicNetwork": false,
-              "protocol": "",
-              "threats": []
-            },
-            "labels": [
-              "Web request HTTP(S)"
-            ],
-            "id": "2c82c990-1931-4eed-b65a-88c61b9fa90a",
-            "source": {
-              "x": 223,
-              "y": 60
-            },
-            "target": {
-              "cell": "3ce57170-5931-4740-88da-2350f8fe2450",
-              "port": "002d426b-5ef5-40c2-bf46-bc70d9f0d8bb"
-            },
-            "vertices": [
-              {
-                "x": 290,
-                "y": 120
-              }
-            ]
-          },
-          {
-            "shape": "flow",
-            "attrs": {
-              "line": {
-                "stroke": "#333333",
-                "targetMarker": {
-                  "name": "block"
-                },
-                "sourceMarker": {
-                  "name": ""
-                },
-                "strokeDasharray": null
-              }
-            },
-            "width": 200,
-            "height": 100,
-            "zIndex": 10,
-            "connector": "smooth",
-            "data": {
-              "type": "tm.Flow",
               "name": "Web response HTTP(S)",
               "description": "",
               "outOfScope": false,
@@ -985,7 +934,96 @@
             "target": {
               "x": 310,
               "y": 20
-            }
+            },
+            "vertices": [
+              {
+                "x": 310,
+                "y": 140
+              }
+            ]
+          },
+          {
+            "shape": "trust-boundary-curve",
+            "width": 200,
+            "height": 100,
+            "zIndex": 10,
+            "connector": "smooth",
+            "data": {
+              "type": "tm.Boundary",
+              "name": "Trust Boundary",
+              "description": "",
+              "isTrustBoundary": true,
+              "hasOpenThreats": false
+            },
+            "labels": [
+              "Trust Boundary"
+            ],
+            "id": "3b5296b2-d419-40e9-8fa8-a500ad20250f",
+            "source": {
+              "x": 176,
+              "y": 250
+            },
+            "target": {
+              "x": 276,
+              "y": 350
+            },
+            "vertices": [
+              {
+                "x": 276,
+                "y": 250
+              }
+            ]
+          },
+          {
+            "shape": "flow",
+            "attrs": {
+              "line": {
+                "stroke": "#333333",
+                "targetMarker": {
+                  "name": "block"
+                },
+                "sourceMarker": {
+                  "name": ""
+                },
+                "strokeDasharray": null
+              }
+            },
+            "width": 200,
+            "height": 100,
+            "zIndex": 10,
+            "connector": "smooth",
+            "data": {
+              "type": "tm.Flow",
+              "name": "Web request HTTP(S)",
+              "description": "",
+              "outOfScope": false,
+              "isTrustBoundary": false,
+              "reasonOutOfScope": "",
+              "hasOpenThreats": false,
+              "isBidirectional": false,
+              "isEncrypted": false,
+              "isPublicNetwork": false,
+              "protocol": "",
+              "threats": []
+            },
+            "labels": [
+              "Web request HTTP(S)"
+            ],
+            "id": "2c82c990-1931-4eed-b65a-88c61b9fa90a",
+            "source": {
+              "x": 223,
+              "y": 60
+            },
+            "target": {
+              "cell": "3ce57170-5931-4740-88da-2350f8fe2450",
+              "port": "002d426b-5ef5-40c2-bf46-bc70d9f0d8bb"
+            },
+            "vertices": [
+              {
+                "x": 290,
+                "y": 120
+              }
+            ]
           },
           {
             "position": {
