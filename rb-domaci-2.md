@@ -1,8 +1,8 @@
-## Tipovi korisnika i sistema koji komuniciraju sa MegaTravel sistemom
+# Tipovi korisnika i sistema koji komuniciraju sa MegaTravel sistemom
 
 Na osnovu opisa sistema i u skladu sa OWASP principima bezbednosnog dizajna, izdvajamo su sledeće korisnike i eksterni akteri:
 
-# Ljudski korisnici
+## Ljudski korisnici
 
 * Krajnji korisnici (putnici) – pristupaju sistemu preko web/mobilne aplikacije da bi pretraživali, rezervisali i planirali odmor.
 
@@ -10,7 +10,7 @@ Na osnovu opisa sistema i u skladu sa OWASP principima bezbednosnog dizajna, izd
 
 * Partneri (hoteli, aviokompanije, agencije) – imaju interfejse za sinhronizaciju ponuda i dostupnosti kapaciteta.
 
-# Sistemi i servisi
+## Sistemi i servisi
 
 * Platni procesori – omogućavaju procesiranje online plaćanja.
 
@@ -20,15 +20,15 @@ Na osnovu opisa sistema i u skladu sa OWASP principima bezbednosnog dizajna, izd
 
 * CI/CD i DevOps alati – koriste se za isporuku softverskih komponenti i konfiguraciju sistema.
 
-## Površina napada – Identifikacija ulaznih tačaka
+# Površina napada – Identifikacija ulaznih tačaka
 
 Na osnovu interakcije gore navedenih korisnika i sistema sa MegaTravel infrastrukturom, pronašli smo sledeće ulazne tačke koje čine površinu napada:
 
-1. Web aplikacija i REST API
+## 1. Web aplikacija i REST API
 
-# Opis: Omogućava korisnicima pretragu, rezervaciju i upravljanje nalozima.
+ ### Opis: Omogućava korisnicima pretragu, rezervaciju i upravljanje nalozima.
 
-# Ulazne tačke:
+ ### Ulazne tačke:
 
 * HTTPS zahtevi
 
@@ -36,7 +36,7 @@ Na osnovu interakcije gore navedenih korisnika i sistema sa MegaTravel infrastru
 
 * API endpointi za rezervacije, plaćanja, pretrage
 
-# Rizici:
+ ### Rizici:
 
 * SQL Injection
 
@@ -44,19 +44,19 @@ Na osnovu interakcije gore navedenih korisnika i sistema sa MegaTravel infrastru
 
 * Neautorizovani pristup API funkcionalnostima
 
-# Zaključak: Kao najčesće korisćena komponenta, predstavlja najveću površinu napada. Potrebno je implementirati strong input validation, rate limiting i authentication middleware.
+### Zaključak: Kao najčesće korisćena komponenta, predstavlja najveću površinu napada. Potrebno je implementirati strong input validation, rate limiting i authentication middleware.
 
-2. Admin portali
+## 2. Admin portali
 
-# Opis: Koriste ih zaposleni i partneri za upravljanje podacima i rezervacijama.
+### Opis: Koriste ih zaposleni i partneri za upravljanje podacima i rezervacijama.
 
-# Ulazne tačke:
+### Ulazne tačke:
 
 * Web login
 
 * Backend dashboard funkcionalnosti
 
-# Rizici:
+### Rizici:
 
 * Privilege escalation
 
@@ -64,105 +64,105 @@ Na osnovu interakcije gore navedenih korisnika i sistema sa MegaTravel infrastru
 
 * Konfiguracione greške
 
-# Zaključak: Potrebno je uvesti dvofaktorsku autentifikaciju i audit logove za sve administrativne aktivnosti.
+### Zaključak: Potrebno je uvesti dvofaktorsku autentifikaciju i audit logove za sve administrativne aktivnosti.
 
-3. Webhook endpointi za plaćanja
+## 3. Webhook endpointi za plaćanja
 
-# Opis: Platni procesori šalju notifikacije o statusima transakcija.
+### Opis: Platni procesori šalju notifikacije o statusima transakcija.
 
-# Ulazne tačke:
+### Ulazne tačke:
 
 * Webhook endpointi
 
-# Rizici:
+### Rizici:
 
 * Lažni zahtevi (spoofing)
 
 * Replay attacks
 
-# Zaključak: Implementacija verifikacije potpisa i provera IP adresa procesora je ključna.
+### Zaključak: Implementacija verifikacije potpisa i provera IP adresa procesora je ključna.
 
-4. Partner API integracije
+## 4. Partner API integracije
 
-# Opis: Uvoze podatke o dostupnosti kapaciteta u realnom vremenu.
+### Opis: Uvoze podatke o dostupnosti kapaciteta u realnom vremenu.
 
-# Ulazne tačke:
+### Ulazne tačke:
 
 * API pozivi
 
-# Rizici:
+### Rizici:
 
 * Nevalidni XML/JSON payloadi
 
 * Poverenje u neproverene partnere
 
-# Zaključak: Obezbediti sandbox okruženje i validaciju ulaza pre dalje obrade.
+### Zaključak: Obezbediti sandbox okruženje i validaciju ulaza pre dalje obrade.
 
-5. OAuth SSO endpointi
+## 5. OAuth SSO endpointi
 
-# Opis: Korisnici se autentifikuju preko trećih strana.
+### Opis: Korisnici se autentifikuju preko trećih strana.
 
-# Ulazne tačke:
+### Ulazne tačke:
 
 * OAuth redirect/callback
 
-# Rizici:
+### Rizici:
 
 * Token substitution
 
 * Open redirect napadi
 
-# Zaključak: Obavezna validacija state parametra i ograničavanje dozvoljenih redirect URI-jeva.
+### Zaključak: Obavezna validacija state parametra i ograničavanje dozvoljenih redirect URI-jeva.
 
-6. Email tokeni i linkovi
+## 6. Email tokeni i linkovi
 
-# Opis: Linkovi za potvrdu rezervacija i resetovanje lozinki.
+### Opis: Linkovi za potvrdu rezervacija i resetovanje lozinki.
 
-# Ulazne tačke:
+### Ulazne tačke:
 
 * GET zahtevi sa tokenima
 
-# Rizici:
+### Rizici:
 
 * Phishing
 
 * Token leakage
 
-# Zaključak: Tokeni moraju biti vremenski ograničeni i jednokratni.
+### Zaključak: Tokeni moraju biti vremenski ograničeni i jednokratni.
 
-7. Agent desktop aplikacije (call centar)
+## 7. Agent desktop aplikacije (call centar)
 
-# Opis: Interfejsi za zaposlene operatere.
+### Opis: Interfejsi za zaposlene operatere.
 
-# Ulazne tačke:
+### Ulazne tačke:
 
 * Interni dashboardi
 
-# Rizici:
+### Rizici:
 
 * Insider threat
 
 * Greške operatera
 
-# Zaključak: Uvesti granularnu kontrolu pristupa (least privilege) i nadzor.
+### Zaključak: Uvesti granularnu kontrolu pristupa (least privilege) i nadzor.
 
-8. CI/CD i repozitorijumi
+## 8. CI/CD i repozitorijumi
 
-# Opis: Automatizovano postavljanje aplikacija i konfiguracija.
+### Opis: Automatizovano postavljanje aplikacija i konfiguracija.
 
-# Ulazne tačke:
+### Ulazne tačke:
 
 * Git webhookovi, build serveri
 
-# Rizici:
+### Rizici:
 
 * Secrets leakage
 
 * Neautorizovani push koda
 
-# Zaključak: Svi tajni podaci moraju biti van koda (npr. vault), uz obaveznu proveru PR-ova i CI logova.
+### Zaključak: Svi tajni podaci moraju biti van koda (npr. vault), uz obaveznu proveru PR-ova i CI logova.
 
-## Zaključak
+# Zaključak
 
 * Web aplikacija i REST API su najveća površina napada i zahtevaju najveću paznju.
 
@@ -174,7 +174,7 @@ Na osnovu interakcije gore navedenih korisnika i sistema sa MegaTravel infrastru
 
 * Pokrivanje ovih povrsina kroz principe sigurnog dizajna, primenu OWASP praksi i automatizovane provere predstavlja minimalni prag bezbednosti za MegaTravel sistem.
 
-## Korisćeni izvori:
+# Korisćeni izvori:
 
 OWASP Top Ten: https://owasp.org/www-project-top-ten/
 
