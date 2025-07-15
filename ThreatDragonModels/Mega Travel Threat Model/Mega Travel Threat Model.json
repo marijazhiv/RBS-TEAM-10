@@ -1554,6 +1554,7 @@
             },
             "visible": true,
             "shape": "store",
+            "zIndex": 14,
             "ports": {
               "groups": {
                 "top": {
@@ -1637,7 +1638,6 @@
               ]
             },
             "id": "546c09a0-b3c4-4a59-b2b3-caa7c8a58cd6",
-            "zIndex": 14,
             "data": {
               "type": "tm.Store",
               "name": "Web Application Config",
@@ -1700,6 +1700,7 @@
             },
             "visible": true,
             "shape": "store",
+            "zIndex": 15,
             "ports": {
               "groups": {
                 "top": {
@@ -1783,7 +1784,6 @@
               ]
             },
             "id": "092e8ffb-9bab-4c57-b9ac-c62d372217e9",
-            "zIndex": 15,
             "data": {
               "type": "tm.Store",
               "name": "Worker Config",
@@ -1818,6 +1818,126 @@
                 "informationDisclosure": 0,
                 "denialOfService": 0
               }
+            }
+          },
+          {
+            "position": {
+              "x": 29.99999999999997,
+              "y": 140.00000000000006
+            },
+            "size": {
+              "width": 110,
+              "height": 100
+            },
+            "attrs": {
+              "text": {
+                "text": "Authentication\nService"
+              },
+              "body": {
+                "stroke": "#333333",
+                "strokeWidth": 1.5,
+                "strokeDasharray": null
+              }
+            },
+            "visible": true,
+            "shape": "process",
+            "ports": {
+              "groups": {
+                "top": {
+                  "position": "top",
+                  "attrs": {
+                    "circle": {
+                      "r": 4,
+                      "magnet": true,
+                      "stroke": "#5F95FF",
+                      "strokeWidth": 1,
+                      "fill": "#fff",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  }
+                },
+                "right": {
+                  "position": "right",
+                  "attrs": {
+                    "circle": {
+                      "r": 4,
+                      "magnet": true,
+                      "stroke": "#5F95FF",
+                      "strokeWidth": 1,
+                      "fill": "#fff",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  }
+                },
+                "bottom": {
+                  "position": "bottom",
+                  "attrs": {
+                    "circle": {
+                      "r": 4,
+                      "magnet": true,
+                      "stroke": "#5F95FF",
+                      "strokeWidth": 1,
+                      "fill": "#fff",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  }
+                },
+                "left": {
+                  "position": "left",
+                  "attrs": {
+                    "circle": {
+                      "r": 4,
+                      "magnet": true,
+                      "stroke": "#5F95FF",
+                      "strokeWidth": 1,
+                      "fill": "#fff",
+                      "style": {
+                        "visibility": "hidden"
+                      }
+                    }
+                  }
+                }
+              },
+              "items": [
+                {
+                  "group": "top",
+                  "id": "449d2f15-640f-4762-baa8-ec7612bbc5f1"
+                },
+                {
+                  "group": "right",
+                  "id": "ae4057a2-b6e2-4003-8f4f-5133f8031a94"
+                },
+                {
+                  "group": "bottom",
+                  "id": "065be3c5-2b84-4661-ab6e-5e61510c0b99"
+                },
+                {
+                  "group": "left",
+                  "id": "3c2084ad-6fd2-4a9b-a932-69d19505a84f"
+                }
+              ]
+            },
+            "id": "15894b49-5444-409b-93fd-9813a1fd1a6c",
+            "zIndex": 16,
+            "data": {
+              "type": "tm.Process",
+              "name": "Authentication\nService",
+              "description": "Handles user authentication using OAuth 2.0",
+              "outOfScope": false,
+              "isTrustBoundary": false,
+              "reasonOutOfScope": "",
+              "hasOpenThreats": false,
+              "handlesCardPayment": false,
+              "handlesGoodsOrServices": false,
+              "isWebApplication": false,
+              "privilegeLevel": "High",
+              "threats": []
             }
           }
         ]
