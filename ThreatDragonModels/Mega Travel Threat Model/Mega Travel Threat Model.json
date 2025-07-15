@@ -654,7 +654,13 @@
             "target": {
               "cell": "13c7a6c6-f0b3-4e86-b597-b612f227e69b",
               "port": "9ac1e99f-1e23-40d5-aa15-8efc648dcc68"
-            }
+            },
+            "vertices": [
+              {
+                "x": 700,
+                "y": 520
+              }
+            ]
           },
           {
             "shape": "flow",
@@ -963,13 +969,13 @@
             "connector": "smooth",
             "data": {
               "type": "tm.Boundary",
-              "name": "",
+              "name": "Trust Boundary",
               "description": "",
               "isTrustBoundary": true,
               "hasOpenThreats": false
             },
             "labels": [
-              ""
+              "Trust Boundary"
             ],
             "id": "30be5564-bca9-44ae-86c2-e1626bca5d66",
             "source": {
@@ -977,40 +983,8 @@
               "y": 220
             },
             "target": {
-              "x": 350,
-              "y": 40
-            },
-            "vertices": [
-              {
-                "x": 300,
-                "y": 180
-              }
-            ]
-          },
-          {
-            "shape": "trust-boundary-curve",
-            "width": 200,
-            "height": 100,
-            "zIndex": 10,
-            "connector": "smooth",
-            "data": {
-              "type": "tm.Boundary",
-              "name": "",
-              "description": "",
-              "isTrustBoundary": true,
-              "hasOpenThreats": false
-            },
-            "labels": [
-              ""
-            ],
-            "id": "c55cdfb1-0610-4269-955a-62b9a4b52a4f",
-            "source": {
-              "x": 203,
-              "y": 226
-            },
-            "target": {
-              "x": 340,
-              "y": 390
+              "x": 310,
+              "y": 20
             }
           },
           {
