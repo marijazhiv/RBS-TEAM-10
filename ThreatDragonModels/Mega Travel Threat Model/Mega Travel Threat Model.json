@@ -3,7 +3,7 @@
   "summary": {
     "title": "Mega Travel Threat Model",
     "owner": "",
-    "description": "Threat model for Mega Travel reservation processing",
+    "description": "",
     "id": 0
   },
   "detail": {
@@ -18,9 +18,9 @@
     "diagrams": [
       {
         "id": 2,
-        "title": "Reservation STRIDE Diagram",
+        "title": "New STRIDE diagram",
         "diagramType": "STRIDE",
-        "placeholder": "STRIDE analysis of reservation system",
+        "placeholder": "New STRIDE diagram description",
         "thumbnail": "./public/content/images/thumbnail.stride.jpg",
         "version": "2.4.1",
         "cells": [
@@ -33,6 +33,14 @@
               "width": 112.5,
               "height": 60
             },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeWidth": 1.5,
+                "strokeDasharray": null
+              }
+            },
+            "visible": true,
             "shape": "actor",
             "zIndex": 1,
             "ports": {
@@ -46,7 +54,9 @@
                       "stroke": "#5F95FF",
                       "strokeWidth": 1,
                       "fill": "#fff",
-                      "style": { "visibility": "hidden" }
+                      "style": {
+                        "visibility": "hidden"
+                      }
                     }
                   }
                 },
@@ -59,7 +69,9 @@
                       "stroke": "#5F95FF",
                       "strokeWidth": 1,
                       "fill": "#fff",
-                      "style": { "visibility": "hidden" }
+                      "style": {
+                        "visibility": "hidden"
+                      }
                     }
                   }
                 },
@@ -72,7 +84,9 @@
                       "stroke": "#5F95FF",
                       "strokeWidth": 1,
                       "fill": "#fff",
-                      "style": { "visibility": "hidden" }
+                      "style": {
+                        "visibility": "hidden"
+                      }
                     }
                   }
                 },
@@ -85,28 +99,42 @@
                       "stroke": "#5F95FF",
                       "strokeWidth": 1,
                       "fill": "#fff",
-                      "style": { "visibility": "hidden" }
+                      "style": {
+                        "visibility": "hidden"
+                      }
                     }
                   }
                 }
               },
               "items": [
-                { "group": "top", "id": "port-actor-top" },
-                { "group": "right", "id": "port-actor-right" },
-                { "group": "bottom", "id": "port-actor-bottom" },
-                { "group": "left", "id": "port-actor-left" }
+                {
+                  "group": "top",
+                  "id": "393c2e94-2f9c-4ec1-8280-151ee120febc"
+                },
+                {
+                  "group": "right",
+                  "id": "2ec210d9-af75-451b-8855-435e52fc9a47"
+                },
+                {
+                  "group": "bottom",
+                  "id": "61092f09-43b5-4f48-9259-c6ac5cba87ab"
+                },
+                {
+                  "group": "left",
+                  "id": "03a2d92c-bfeb-4882-8029-4ec0db43b8d1"
+                }
               ]
             },
-            "id": "browser-actor",
+            "id": "b98eb849-6743-4dfc-9adf-1d157567ec8d",
             "data": {
               "type": "tm.Actor",
-              "name": "Browser",
-              "description": "End user accessing Mega Travel platform",
+              "name": "Actor",
+              "description": "",
               "isTrustBoundary": false,
               "outOfScope": false,
               "reasonOutOfScope": "",
               "hasOpenThreats": false,
-              "providesAuthentication": true,
+              "providesAuthentication": false,
               "threats": []
             }
           },
@@ -119,6 +147,14 @@
               "width": 60,
               "height": 60
             },
+            "attrs": {
+              "body": {
+                "stroke": "#333333",
+                "strokeWidth": 1.5,
+                "strokeDasharray": null
+              }
+            },
+            "visible": true,
             "shape": "process",
             "ports": {
               "groups": {
@@ -131,7 +167,9 @@
                       "stroke": "#5F95FF",
                       "strokeWidth": 1,
                       "fill": "#fff",
-                      "style": { "visibility": "hidden" }
+                      "style": {
+                        "visibility": "hidden"
+                      }
                     }
                   }
                 },
@@ -144,7 +182,9 @@
                       "stroke": "#5F95FF",
                       "strokeWidth": 1,
                       "fill": "#fff",
-                      "style": { "visibility": "hidden" }
+                      "style": {
+                        "visibility": "hidden"
+                      }
                     }
                   }
                 },
@@ -157,7 +197,9 @@
                       "stroke": "#5F95FF",
                       "strokeWidth": 1,
                       "fill": "#fff",
-                      "style": { "visibility": "hidden" }
+                      "style": {
+                        "visibility": "hidden"
+                      }
                     }
                   }
                 },
@@ -170,96 +212,54 @@
                       "stroke": "#5F95FF",
                       "strokeWidth": 1,
                       "fill": "#fff",
-                      "style": { "visibility": "hidden" }
+                      "style": {
+                        "visibility": "hidden"
+                      }
                     }
                   }
                 }
               },
               "items": [
-                { "group": "top", "id": "port-webapp-top" },
-                { "group": "right", "id": "port-webapp-right" },
-                { "group": "bottom", "id": "port-webapp-bottom" },
-                { "group": "left", "id": "port-webapp-left" }
+                {
+                  "group": "top",
+                  "id": "90c471ba-75b7-41a2-a770-a16f8f287cf7"
+                },
+                {
+                  "group": "right",
+                  "id": "83933efc-45f2-4fcf-86a2-7c1b49a44502"
+                },
+                {
+                  "group": "bottom",
+                  "id": "f59a95f8-4928-4bdc-a75c-e1894a08dded"
+                },
+                {
+                  "group": "left",
+                  "id": "3b373653-9f90-4801-ac58-da5a91e65d25"
+                }
               ]
             },
-            "id": "webapp-process",
+            "id": "43ac97e7-3602-4eac-b33f-ec0d48a7ad13",
             "zIndex": 2,
             "data": {
               "type": "tm.Process",
-              "name": "Web Application",
-              "description": "Handles HTTPS requests and serves UI/API",
+              "name": "Process",
+              "description": "",
               "outOfScope": false,
               "isTrustBoundary": false,
               "reasonOutOfScope": "",
               "hasOpenThreats": false,
-              "handlesCardPayment": true,
-              "handlesGoodsOrServices": true,
-              "isWebApplication": true,
-              "privilegeLevel": "Standard",
+              "handlesCardPayment": false,
+              "handlesGoodsOrServices": false,
+              "isWebApplication": false,
+              "privilegeLevel": "",
               "threats": []
             },
             "tools": {
-              "items": ["boundary", "button-remove"],
+              "items": [
+                "boundary",
+                "button-remove"
+              ],
               "name": null
-            }
-          },
-          {
-            "position": { "x": 500, "y": 80 },
-            "size": { "width": 60, "height": 60 },
-            "shape": "process",
-            "id": "worker-process",
-            "data": {
-              "type": "tm.Process",
-              "name": "Background Worker",
-              "description": "Processes reservations and communicates with Payment Processor",
-              "outOfScope": false,
-              "isTrustBoundary": false,
-              "reasonOutOfScope": "",
-              "hasOpenThreats": false,
-              "handlesCardPayment": true,
-              "handlesGoodsOrServices": true,
-              "isWebApplication": false,
-              "privilegeLevel": "Elevated",
-              "threats": []
-            }
-          },
-          {
-            "position": { "x": 660, "y": 90 },
-            "size": { "width": 60, "height": 60 },
-            "shape": "externalentity",
-            "id": "payment-processor",
-            "data": {
-              "type": "tm.ExternalEntity",
-              "name": "Payment Processor",
-              "description": "External payment API gateway",
-              "outOfScope": false,
-              "threats": []
-            }
-          },
-          {
-            "position": { "x": 500, "y": 220 },
-            "size": { "width": 60, "height": 60 },
-            "shape": "datastore",
-            "id": "reservations-db",
-            "data": {
-              "type": "tm.DataStore",
-              "name": "Reservations DB",
-              "description": "Stores reservation and transaction records",
-              "outOfScope": false,
-              "threats": []
-            }
-          },
-          {
-            "position": { "x": 330, "y": 220 },
-            "size": { "width": 60, "height": 60 },
-            "shape": "externalentity",
-            "id": "message-queue",
-            "data": {
-              "type": "tm.ExternalEntity",
-              "name": "Message Queue",
-              "description": "Queues reservation processing tasks",
-              "outOfScope": false,
-              "threats": []
             }
           }
         ]
