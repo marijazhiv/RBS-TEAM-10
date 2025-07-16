@@ -2069,8 +2069,8 @@
             },
             "visible": true,
             "shape": "td-text-block",
-            "id": "2707ee7e-f704-4ff9-9d40-2db5b70cf45d",
             "zIndex": 17,
+            "id": "2707ee7e-f704-4ff9-9d40-2db5b70cf45d",
             "data": {
               "type": "tm.Text",
               "name": "Client/Employee",
@@ -2098,6 +2098,7 @@
             },
             "visible": true,
             "shape": "process",
+            "zIndex": 18,
             "ports": {
               "groups": {
                 "top": {
@@ -2181,7 +2182,6 @@
               ]
             },
             "id": "f8ab46af-faa0-437f-b8ae-7d84f3091ada",
-            "zIndex": 18,
             "data": {
               "type": "tm.Process",
               "name": "Mail server",
@@ -2218,6 +2218,7 @@
             },
             "visible": true,
             "shape": "process",
+            "zIndex": 19,
             "ports": {
               "groups": {
                 "top": {
@@ -2301,7 +2302,6 @@
               ]
             },
             "id": "7d8e1556-65a1-469d-8d1c-407b9f2df956",
-            "zIndex": 19,
             "data": {
               "type": "tm.Process",
               "name": "Payment system",
