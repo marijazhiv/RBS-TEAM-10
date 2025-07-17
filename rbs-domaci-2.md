@@ -96,10 +96,10 @@ U okviru procesa modelovanja pretnji (Threat Modeling), jedan od ključnih korak
 * Nedostupnost baze blokira celokupnu funkcionalnost sistema. 
 
 ## 2\. Rezervacioni sistem (Reservation System) 
-- Web aplikacija (frontend i backend logika za rezervacije)  
-- API servisi koji komuniciraju sa korisnicima i partnerima  
-- Mikroservisi za obradu, potvrdu i otkazivanje rezervacija  
-- Baza podataka rezervacija (korisnici, destinacije, datumi, cene, statusi – potvrđeno/otkazano)  
+Web aplikacija (frontend i backend logika za rezervacije)  
+API servisi koji komuniciraju sa korisnicima i partnerima  
+Mikroservisi za obradu, potvrdu i otkazivanje rezervacija  
+Baza podataka rezervacija (korisnici, destinacije, datumi, cene, statusi – potvrđeno/otkazano)
 
 * **Inherentna izloženost:** Rezervacioni sistem je dostupan korisnicima putem interneta, kao i putem API-ja za partnere (interne servise).   
 * **Bezbednosni ciljevi (CIA):**   
