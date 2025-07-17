@@ -262,6 +262,8 @@ Sprečava korisnike da **poriču radnje**, i omogućava detekciju **zlonamernih 
 
 ### 4\. Interna poslovna dokumentacija
 
+ Obuhvata strateške dokumente, ugovore sa partnerima, strategije i interni know-how.
+ 
 * **Pretnje:**
 
   * *Information Disclosure:* Industrijska špijunaža.
