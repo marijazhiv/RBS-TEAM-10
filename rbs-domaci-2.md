@@ -315,7 +315,7 @@ Svi osetljivi pristupi se **automatski evidentiraju**, a neuobičajeno ponašanj
 
 * *Spoofing:* Lažni pošiljaoci mejlova.
 
-  * *Phishing:* Prevara zaposlenih da odaju informacije.
+* *Phishing:* Prevara zaposlenih da odaju informacije.
 
 **Mitigacije:**
 
