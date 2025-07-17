@@ -148,7 +148,7 @@ U okviru procesa modelovanja pretnji (Threat Modeling), jedan od ključnih korak
 * **Uticaj narušavanja:**   
 * Defacement sajta, DDoS napadi ili zlonamerni kod mogu narušiti korisničko iskustvo i poverenje što utiče na ugled i funkcionalnost sistema. 
 
-![DFD][images/dfd1.png]
+![DFD](images/dfd1.png)
 
 ### E. Pretnje i mitigacije \- STRIDE metodologija (za svako sredstvo imovine)
 
