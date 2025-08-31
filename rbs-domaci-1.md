@@ -1,4 +1,4 @@
-# Topic A: Secret Encryption (including passwords)
+# A. Secret Encryption (including passwords)
 
 ## Introduction
 Secret encryption is a security mechanism that ensures confidential data is stored in a way that only users possessing the correct key can access it. Unlike authentication passwords, which are typically hashed in modern systems (since they rarely need to be read in plaintext), **Secrets Management Systems** require encryption because passwords, API keys, or private cryptographic keys must sometimes be retrieved and used.
