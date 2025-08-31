@@ -1,4 +1,120 @@
-# Auditing in Software Systems
+# Topic A: Secret Encryption (including passwords)
+
+## Introduction
+Secret encryption is a security mechanism that ensures confidential data is stored in a way that only users possessing the correct key can access it. Unlike authentication passwords, which are typically hashed in modern systems (since they rarely need to be read in plaintext), **Secrets Management Systems** require encryption because passwords, API keys, or private cryptographic keys must sometimes be retrieved and used.
+
+---
+
+## Types of Encryption Algorithms
+
+### Symmetric Algorithms
+- Use the same key for both encryption and decryption.  
+- **Advantages**: very fast and efficient for large volumes of data.  
+- **Disadvantages**: requires secure storage and distribution of the key.  
+- **Common algorithms**: AES (Advanced Encryption Standard) – the most secure and widely adopted symmetric cipher today.  
+
+### Asymmetric Algorithms
+- Use a pair of keys: public (for encryption) and private (for decryption).  
+- **Advantages**: suitable for key distribution and digital signatures.  
+- **Disadvantages**: slower and less efficient for encrypting large amounts of data.  
+- **Common algorithms**: RSA, ECC (Elliptic Curve Cryptography).  
+
+For secret storage systems, a **hybrid approach** is used:  
+**Master password → Key Derivation Function (KDF) → Symmetric encryption (AES-256).**
+
+---
+
+## Key Generation from a Master Password
+To encrypt secrets, a key must be derived from the user’s master password using a **Key Derivation Function (KDF)**.
+
+### Common KDFs
+- **PBKDF2** – uses iterative hashing (HMAC) with salt; widely supported.  
+- **scrypt** – memory-intensive, resistant to ASIC attacks.  
+- **Argon2** – winner of the Password Hashing Competition (PHC), considered the most secure modern KDF.  
+
+**Recommendation**: Use **Argon2id** with parameters balancing performance and security: high memory cost, sufficient iterations, and parallelism.
+
+---
+
+## Configuration Parameters
+Security depends heavily on correct algorithm configuration:
+
+- **AES**: use AES-256 in **GCM mode (Galois/Counter Mode)** to provide both confidentiality and integrity (authenticated encryption).  
+- **Argon2id** parameters:  
+  - Memory: ≥ 64 MB per derivation  
+  - Iterations: ≥ 3  
+  - Parallelism: ≥ 2  
+- **Salt**: unique per user, ≥ 16 bytes, generated with a cryptographically secure RNG.  
+- **IV (Initialization Vector)**: unique per encryption operation, 96 bits in length.
+
+---
+### Key Derivation Function: PBKDF2 vs Argon2
+
+To generate encryption keys from a master password, KDF algorithms are used. 
+
+| Algorithm | Advantages | Disadvantages | Usage |
+|-----------|-----------|---------------|-------|
+| **PBKDF2** | Widely supported, easy to implement | Less resistant to GPU/ASIC attacks | Legacy systems, broad compatibility |
+| **Argon2 (recommended: Argon2id)** | Highly secure, resistant to specialized hardware, PHC winner | Higher memory usage, less widely supported | Modern secret management systems |
+
+---
+
+### AES Modes: GCM vs CBC
+
+AES is a symmetric algorithm that can operate in different modes:
+
+| Mode | Advantages | Disadvantages | Usage |
+|------|-----------|---------------|-------|
+| **AES-CBC** | Simple, widely known | Requires additional HMAC for integrity, vulnerable to padding oracle attacks | Older systems |
+| **AES-GCM (recommended)** | Authenticated encryption (AEAD), confidentiality and integrity in one step, tamper-resistant | Slightly more complex to implement | Modern systems, recommended for secret management |
+
+**Conclusion:** For a secret management system, use **AES-256-GCM** for both confidentiality and integrity in a single step.
+
+---
+
+## Providers and Implementations
+Trusted libraries and frameworks include:  
+- **OpenSSL** – industry standard, widely used.  
+- **libsodium** – modern, high-level API with safe defaults for encryption and KDFs.  
+- **BouncyCastle** – available for Java/.NET ecosystems.  
+- **WebCrypto API** – for browser-based applications.  
+
+**Best practice**: Use high-level libraries (e.g., libsodium) to minimize implementation errors.
+
+---
+
+## Potential Vulnerabilities and Challenges
+- Use of deprecated algorithms (DES, RC4, SHA1).  
+- Weak or predictable keys due to poor KDF configuration.  
+- IV reuse, which compromises encryption security.  
+- Poor key management (e.g., storing master keys in plaintext).  
+- Dependency on outdated libraries with known CVEs.  
+
+---
+
+## Security Requirements for Implementation
+1. **Algorithm**: use AES-256-GCM for secret encryption.  
+2. **Key derivation**: use Argon2id with recommended parameters (high memory, iterations, parallelism).  
+3. **Salt**: generate a unique salt ≥ 16 bytes per user.  
+4. **IV**: use a unique 96-bit IV for each encryption.  
+5. **Integrity**: always use AEAD modes (e.g., AES-GCM).  
+6. **Providers**: use trusted and widely adopted libraries (OpenSSL, libsodium).  
+7. **Maintenance**: regularly check for vulnerabilities in libraries and update.  
+8. **Key management**: never store master keys in plaintext; use HSMs or dedicated secret managers.  
+9. **Auditing**: all access to secrets must be logged and periodically reviewed.  
+
+
+
+## References
+1. NIST (2001). *Announcing the Advanced Encryption Standard (AES)*. FIPS PUB 197.  
+2. Biryukov, A., Dinu, D., & Khovratovich, D. (2016). *Argon2: The memory-hard function for password hashing and other applications*. RFC 9106.  
+3. Percival, C. (2009). *Stronger key derivation via sequential memory-hard functions*. BSDCan.  
+4. Bernstein, D. J. (2013). *The Sodium crypto library*. [https://libsodium.org](https://libsodium.org)  
+5. OpenSSL Software Foundation. *OpenSSL: Cryptography and SSL/TLS Toolkit*. [https://www.openssl.org](https://www.openssl.org)  
+
+
+
+# B. Auditing in Software Systems
 
 A **log file** represents a record of events in a computer system or network. Each entry contains information relevant to a specific event, valid or invalid login attempts, usage of resources such as creating, opening, or deleting files. Originally, log files were used for troubleshooting computer systems, but today log files have many more functions. They are used for optimizing systems and networks, monitoring user behavior, and generating data useful for investigating malicious program activities. Log files contain a large number of different pieces of information, so we can divide them into several categories depending on the installed services, and the most interesting for us is:
 
