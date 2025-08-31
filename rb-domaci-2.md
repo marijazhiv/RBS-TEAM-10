@@ -164,7 +164,7 @@ Na osnovu interakcije gore navedenih korisnika i sistema sa MegaTravel infrastru
 
 # Zaključak
 
-* Web aplikacija i REST API su najveća površina napada i zahtevaju najveću paznju.
+* Web aplikacija i REST API su najveća površina napada i zahtevaju najveću pažnju.
 
 * Interfejsi za integraciju sa trećim stranama (plaćanja, partneri) otvaraju mogućnosti za sofisticirane napade i zahtevaju digitalne potpise, autentifikaciju i sandbox validaciju.
 
@@ -172,7 +172,7 @@ Na osnovu interakcije gore navedenih korisnika i sistema sa MegaTravel infrastru
 
 * DevOps alati i repozitorijumi predstavljaju supply chain attack rizik i moraju biti adekvatno izolovani i nadgledani.
 
-* Pokrivanje ovih povrsina kroz principe sigurnog dizajna, primenu OWASP praksi i automatizovane provere predstavlja minimalni prag bezbednosti za MegaTravel sistem.
+* Pokrivanje ovih površina kroz principe sigurnog dizajna, primenu OWASP praksi i automatizovane provere predstavlja minimalni prag bezbednosti za MegaTravel sistem.
 
 # Korisćeni izvori:
 
