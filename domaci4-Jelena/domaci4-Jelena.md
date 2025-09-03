@@ -312,12 +312,13 @@ forgot username.php + reset password chain) se mogu podeliti na 3 nivoa:
 
 Primer:
 
-\$username = \$\_POST\['username'\];
+```php
+$username = $_POST['username'];
 
-\$stmt = \$pdo-\>prepare("SELECT \* FROM users WHERE username =
-:username");
+$stmt = $pdo->prepare("SELECT * FROM users WHERE username = :username");
 
-\$stmt-\>execute(\['username' =\> \$username\]);
+$stmt->execute(['username' => $username]);
+```
 
 Ovo automatski escape-uje korisnički unos i sprečava SQLi.
 
