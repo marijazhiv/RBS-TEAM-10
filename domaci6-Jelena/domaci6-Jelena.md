@@ -1,7 +1,7 @@
 # Analiza OS-a, kernela, paketa i konfiguracije logovanja
 
 Ovaj zadatak ima za cilj izvršavanje bezbednosne i konfiguracione
-analiye Linux sistema koristeći automatizovanu python skriptu i
+analize Linux sistema koristeći automatizovanu python skriptu i
 ispisujući rezultate u log fajl. Cilj je identifikovati bezbednosne
 propuste, potencijalne ranjivosti i oblasti koje zahtevaju unapređenje
 kako bi sistem bio sigurniji i u skladu sa standardima dobre prakse za
