@@ -31,7 +31,7 @@ Zaključujemo da je osnovna infrastruktura stabilna, ali dugoročno
 praćenje i planirane nadogradnje su i dalje od velike važnosti za
 bezbednost i pouzdanost sistema.
 
-## Vremenska konfigutacija
+## Vremenska konfiguracija
 
 Uvidom u trenutno stanje sistema, zaključujemo da je trenutno vremenska
 zona postavljena na Europe/Belgrade, pto je lokalna vremenska zona i to
