@@ -28,7 +28,10 @@ WORKDIR /app
 # Kopiraj aplikaciju u /app
 COPY . /app
 
+# Napravi direktorijum za izveštaje (ako ne postoji) i postavi permisije
+RUN mkdir -p /domaci4/reports && chmod -R 0777 /app/reports || true
+
 # Pokreni progpilot nad kodom u /app i izveštaj u JSON formatu na stdout
 WORKDIR /scanner
 # CMD ["vendor/bin/progpilot", "/app", "json"]
-CMD sh -c 'timestamp=$(date +"%Y%m%d_%H%M%S") && vendor/bin/progpilot /app json > "/app/reports/${timestamp}_progpilot_report.json" && cat "/app/reports/${timestamp}_progpilot_report.json"'
+CMD sh -c 'mkdir -p /app/reports && timestamp=$(date +"%Y%m%d_%H%M%S") && vendor/bin/progpilot /app json > "/app/reports/${timestamp}_progpilot_report.json" && cat "/app/reports/${timestamp}_progpilot_report.json"'
