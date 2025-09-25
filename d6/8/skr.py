@@ -517,3 +517,17 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
+    
+    
+    """"
+    2024-12-01 14:30:22,345 - ERROR - [-] SECURITY ISSUE: Root login permitted via SSH
+2024-12-01 14:30:22,345 - ERROR -     RECOMMENDATION: Set PermitRootLogin to no
+2024-12-01 14:30:22,346 - ERROR - [-] CRITICAL: MySQL root access without password
+2024-12-01 14:30:22,347 - ERROR - [-] SECURITY ISSUE: Apache directory listing enabled
+
+2024-12-01 14:30:22,567 - ERROR - SECURITY ISSUES FOUND: 3
+2024-12-01 14:30:22,567 - ERROR -   1. SSH PermitRootLogin enabled - disable root SSH access
+2024-12-01 14:30:22,567 - ERROR -   2. MySQL root access without password - CRITICAL
+2024-12-01 14:30:22,567 - ERROR -   3. Apache directory listing enabled - information disclosure risk
+""""
