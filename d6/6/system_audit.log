@@ -1,0 +1,71 @@
+2025-09-25 21:07:33,199 - INFO - Starting Comprehensive Filesystem Security Audit
+2025-09-25 21:07:33,201 - INFO - Audit Time: 2025-09-25 21:07:33
+2025-09-25 21:07:33,202 - INFO - 
+2025-09-25 21:07:33,203 - INFO - ============================================================
+2025-09-25 21:07:33,204 - INFO - MOUNTED PARTITIONS REVIEW
+2025-09-25 21:07:33,205 - INFO - ============================================================
+2025-09-25 21:07:33,205 - INFO - Executing: mount
+2025-09-25 21:07:33,246 - INFO - [SUCCESS] Current mounted filesystems
+2025-09-25 21:07:33,247 - INFO - Executing: cat /etc/fstab
+2025-09-25 21:07:33,252 - INFO - [SUCCESS] Filesystem table configuration
+2025-09-25 21:07:33,253 - INFO - 
+2025-09-25 21:07:33,253 - INFO - MOUNT OPTIONS SECURITY ANALYSIS
+2025-09-25 21:07:33,254 - INFO - ----------------------------------------
+2025-09-25 21:07:33,255 - ERROR - [-] SECURITY ISSUE: noatime option found on /usr/lib/wsl/drivers
+2025-09-25 21:07:33,256 - ERROR -     RECOMMENDATION: Remove noatime to preserve access times for forensics
+2025-09-25 21:07:33,257 - ERROR - [-] SECURITY ISSUE: noatime option found on /usr/lib/modules/5.15.146.1-microsoft-standard-WSL2
+2025-09-25 21:07:33,259 - ERROR -     RECOMMENDATION: Remove noatime to preserve access times for forensics
+2025-09-25 21:07:33,261 - ERROR - [-] SECURITY ISSUE: noatime option found on /usr/lib/wsl/lib
+2025-09-25 21:07:33,263 - ERROR -     RECOMMENDATION: Remove noatime to preserve access times for forensics
+2025-09-25 21:07:33,264 - ERROR - [-] SECURITY ISSUE: noatime option found on /sys
+2025-09-25 21:07:33,266 - ERROR -     RECOMMENDATION: Remove noatime to preserve access times for forensics
+2025-09-25 21:07:33,267 - ERROR - [-] SECURITY ISSUE: noatime option found on /proc
+2025-09-25 21:07:33,268 - ERROR -     RECOMMENDATION: Remove noatime to preserve access times for forensics
+2025-09-25 21:07:33,269 - ERROR - [-] SECURITY ISSUE: noatime option found on /dev/pts
+2025-09-25 21:07:33,269 - ERROR -     RECOMMENDATION: Remove noatime to preserve access times for forensics
+2025-09-25 21:07:33,270 - ERROR - [-] SECURITY ISSUE: noatime option found on /run/lock
+2025-09-25 21:07:33,270 - ERROR -     RECOMMENDATION: Remove noatime to preserve access times for forensics
+2025-09-25 21:07:33,271 - ERROR - [-] SECURITY ISSUE: noatime option found on /run/shm
+2025-09-25 21:07:33,271 - ERROR -     RECOMMENDATION: Remove noatime to preserve access times for forensics
+2025-09-25 21:07:33,272 - ERROR - [-] SECURITY ISSUE: noatime option found on /dev/shm
+2025-09-25 21:07:33,273 - ERROR -     RECOMMENDATION: Remove noatime to preserve access times for forensics
+2025-09-25 21:07:33,277 - ERROR - [-] SECURITY ISSUE: noatime option found on /run/user
+2025-09-25 21:07:33,279 - ERROR -     RECOMMENDATION: Remove noatime to preserve access times for forensics
+2025-09-25 21:07:33,280 - ERROR - [-] SECURITY ISSUE: noatime option found on /mnt/c
+2025-09-25 21:07:33,281 - ERROR -     RECOMMENDATION: Remove noatime to preserve access times for forensics
+2025-09-25 21:07:33,281 - INFO - 
+2025-09-25 21:07:33,282 - INFO - ============================================================
+2025-09-25 21:07:33,283 - INFO - SENSITIVE FILES PERMISSIONS
+2025-09-25 21:07:33,283 - INFO - ============================================================
+2025-09-25 21:07:33,285 - INFO - [+] /etc/mysql/my.cnf does not exist
+2025-09-25 21:07:33,293 - ERROR - [-] SECURITY ISSUE: /etc/passwd is world-readable
+2025-09-25 21:07:33,294 - ERROR -     RECOMMENDATION: Restrict to root access only
+2025-09-25 21:07:33,295 - ERROR - [-] SECURITY ISSUE: /etc/group is world-readable
+2025-09-25 21:07:33,296 - ERROR -     RECOMMENDATION: Restrict to root access only
+2025-09-25 21:07:33,297 - INFO - 
+2025-09-25 21:07:33,297 - INFO - BACKUP FILES CHECK
+2025-09-25 21:07:33,298 - INFO - ----------------------------------------
+2025-09-25 21:07:33,298 - INFO - Executing: find / -name "/etc/shadow.backup" 2>/dev/null | grep -v "/proc"
+2025-09-25 21:08:38,819 - ERROR - [ERROR] Finding backup files: /etc/shadow.backup - TIMEOUT
+2025-09-25 21:08:38,819 - INFO - Executing: find / -name "/etc/shadow.bak" 2>/dev/null | grep -v "/proc"
+2025-09-25 21:09:44,326 - ERROR - [ERROR] Finding backup files: /etc/shadow.bak - TIMEOUT
+2025-09-25 21:09:44,327 - INFO - Executing: find / -name "/etc/passwd.backup" 2>/dev/null | grep -v "/proc"
+2025-09-25 21:10:49,833 - ERROR - [ERROR] Finding backup files: /etc/passwd.backup - TIMEOUT
+2025-09-25 21:10:49,834 - INFO - Executing: find / -name "/etc/passwd.bak" 2>/dev/null | grep -v "/proc"
+2025-09-25 21:11:55,376 - ERROR - [ERROR] Finding backup files: /etc/passwd.bak - TIMEOUT
+2025-09-25 21:11:55,377 - INFO - Executing: find / -name "*.backup" 2>/dev/null | grep -v "/proc"
+2025-09-25 21:13:00,887 - ERROR - [ERROR] Finding backup files: *.backup - TIMEOUT
+2025-09-25 21:13:00,888 - INFO - Executing: find / -name "*.bak" 2>/dev/null | grep -v "/proc"
+2025-09-25 21:14:06,406 - ERROR - [ERROR] Finding backup files: *.bak - TIMEOUT
+2025-09-25 21:14:06,412 - INFO - 
+2025-09-25 21:14:06,414 - INFO - ============================================================
+2025-09-25 21:14:06,416 - INFO - SETUID FILES REVIEW
+2025-09-25 21:14:06,420 - INFO - ============================================================
+2025-09-25 21:14:06,422 - INFO - Executing: find / -perm -4000 -ls 2>/dev/null | grep -v "/proc"
+2025-09-25 21:15:11,949 - ERROR - [ERROR] Finding setuid files - TIMEOUT
+2025-09-25 21:15:11,952 - ERROR - [-] Failed to find setuid files
+2025-09-25 21:15:11,953 - INFO - 
+2025-09-25 21:15:11,955 - INFO - ============================================================
+2025-09-25 21:15:11,957 - INFO - WORLD-WRITABLE FILES REVIEW
+2025-09-25 21:15:11,959 - INFO - ============================================================
+2025-09-25 21:15:11,961 - INFO - Executing: find / -type f -perm -002 ! -path "/proc/*" 2>/dev/null
