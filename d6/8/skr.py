@@ -530,4 +530,4 @@ if __name__ == "__main__":
 2024-12-01 14:30:22,567 - ERROR -   1. SSH PermitRootLogin enabled - disable root SSH access
 2024-12-01 14:30:22,567 - ERROR -   2. MySQL root access without password - CRITICAL
 2024-12-01 14:30:22,567 - ERROR -   3. Apache directory listing enabled - information disclosure risk
-""""
+"""
