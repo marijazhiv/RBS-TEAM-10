@@ -1,0 +1,94 @@
+[2025-09-08 19:54:47] ============================================================
+[2025-09-08 19:54:47] MODULE 1: OS, KERNEL, PACKAGES & LOGGING
+[2025-09-08 19:54:47] ============================================================
+[2025-09-08 19:54:47] [+] Checking OS information...
+[2025-09-08 19:54:47] [+] OS Release Info:
+[2025-09-08 19:54:47]   PRETTY_NAME: Ubuntu 22.04.5 LTS
+[2025-09-08 19:54:47]   NAME: Ubuntu
+[2025-09-08 19:54:47]   VERSION_ID: 22.04
+[2025-09-08 19:54:47] [+] Debian Version: bookworm/sid
+[2025-09-08 19:54:47] [+] LSB Release Info:
+[2025-09-08 19:54:47]   Distributor ID:	Ubuntu
+[2025-09-08 19:54:47]   Description:	Ubuntu 22.04.5 LTS
+[2025-09-08 19:54:47]   Release:	22.04
+[2025-09-08 19:54:47]   Codename:	jammy
+[2025-09-08 19:54:47] [+] Checking kernel information...
+[2025-09-08 19:54:47] [+] Kernel: Linux jelena-VirtualBox 6.8.0-79-generic #79~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Fri Aug 15 16:54:53 UTC 2 x86_64 x86_64 x86_64 GNU/Linux
+[2025-09-08 19:54:47] [+] Uptime: 19:54:47 up  4:00,  2 users,  load average: 1,28, 1,34, 1,40
+[2025-09-08 19:54:47] [+] Load average: 1.28 1.34 1.40 4/1021 16639
+[2025-09-08 19:54:47] [+] Checking time configuration...
+[2025-09-08 19:54:47] [+] Timezone: Europe/Belgrade
+[2025-09-08 19:54:47] [-] SECURITY ISSUE: Non-UTC timezone detected!
+[2025-09-08 19:54:47]    Recommendation: Use UTC timezone for servers
+[2025-09-08 19:54:47] [+] NTP service running:
+[2025-09-08 19:54:47]   jelena      5213    5047  0 15:56 ?        00:00:01 /snap/firefox/6738/usr/lib/firefox/firefox -contentproc -ipcHandle 0 -signalPipe 1 -initialChannelId {f802582c-221a-467c-bd1b-e882739d3b6b} -parentPid 5047 -greomni /snap/firefox/6738/usr/lib/firefox/omni.ja -appomni /snap/firefox/6738/usr/lib/firefox/browser/omni.ja -appDir /snap/firefox/6738/usr/lib/firefox/browser 1 forkserver
+[2025-09-08 19:54:47]   jelena      5218    5213  0 15:56 ?        00:00:00 /snap/firefox/6738/usr/lib/firefox/firefox -contentproc -parentBuildID 20250828192042 -prefsHandle 0:38533 -prefMapHandle 1:273080 -sandboxReporter 2 -chrootClient 3 -ipcHandle 4 -initialChannelId {c3063f80-728a-4002-8479-436925015bc2} -parentPid 5047 -crashReporter 5 -crashHelper 6 -appDir /snap/firefox/6738/usr/lib/firefox/browser 2 socket
+[2025-09-08 19:54:47]   jelena      5251    5213  0 15:56 ?        00:00:38 /snap/firefox/6738/usr/lib/firefox/firefox -contentproc -isForBrowser -prefsHandle 0:38723 -prefMapHandle 1:273080 -jsInitHandle 2:227036 -parentBuildID 20250828192042 -sandboxReporter 3 -chrootClient 4 -ipcHandle 5 -initialChannelId {f586d3fc-217e-4662-81b1-46c49e1925de} -parentPid 5047 -crashReporter 6 -crashHelper 7 -greomni /snap/firefox/6738/usr/lib/firefox/omni.ja -appomni /snap/firefox/6738/usr/lib/firefox/browser/omni.ja -appDir /snap/firefox/6738/usr/lib/firefox/browser 3 tab
+[2025-09-08 19:54:47]   jelena      5265    5213  0 15:56 ?        00:00:03 /snap/firefox/6738/usr/lib/firefox/firefox -contentproc -parentBuildID 20250828192042 -prefsHandle 0:38723 -prefMapHandle 1:273080 -sandboxReporter 2 -chrootClient 3 -ipcHandle 4 -initialChannelId {b22a3d31-a414-4755-b088-d28ba384bef8} -parentPid 5047 -crashReporter 5 -crashHelper 6 -appDir /snap/firefox/6738/usr/lib/firefox/browser 4 rdd
+[2025-09-08 19:54:47]   jelena      5385    5213  0 15:56 ?        00:00:02 /snap/firefox/6738/usr/lib/firefox/firefox -contentproc -isForBrowser -prefsHandle 0:48948 -prefMapHandle 1:273080 -jsInitHandle 2:227036 -parentBuildID 20250828192042 -sandboxReporter 3 -chrootClient 4 -ipcHandle 5 -initialChannelId {03bd1e11-a26f-4ca0-a0de-8a5ff738fdd9} -parentPid 5047 -crashReporter 6 -crashHelper 7 -greomni /snap/firefox/6738/usr/lib/firefox/omni.ja -appomni /snap/firefox/6738/usr/lib/firefox/browser/omni.ja -appDir /snap/firefox/6738/usr/lib/firefox/browser 5 tab
+[2025-09-08 19:54:47]   jelena      5529    5213  0 15:56 ?        00:00:04 /snap/firefox/6738/usr/lib/firefox/firefox -contentproc -parentBuildID 20250828192042 -sandboxingKind 0 -prefsHandle 0:49365 -prefMapHandle 1:273080 -sandboxReporter 2 -chrootClient 3 -ipcHandle 4 -initialChannelId {c14126e2-6131-4303-a00f-6b0ec599641c} -parentPid 5047 -crashReporter 5 -crashHelper 6 -appDir /snap/firefox/6738/usr/lib/firefox/browser 6 utility
+[2025-09-08 19:54:47]   jelena      5537    5213  5 15:56 ?        00:13:15 /snap/firefox/6738/usr/lib/firefox/firefox -contentproc -isForBrowser -prefsHandle 0:43945 -prefMapHandle 1:273080 -jsInitHandle 2:227036 -parentBuildID 20250828192042 -sandboxReporter 3 -chrootClient 4 -ipcHandle 5 -initialChannelId {4eafa447-be71-4c62-8952-3bbfb2e56cd7} -parentPid 5047 -crashReporter 6 -crashHelper 7 -greomni /snap/firefox/6738/usr/lib/firefox/omni.ja -appomni /snap/firefox/6738/usr/lib/firefox/browser/omni.ja -appDir /snap/firefox/6738/usr/lib/firefox/browser 7 tab
+[2025-09-08 19:54:47]   jelena      5542    5213  0 15:56 ?        00:00:41 /snap/firefox/6738/usr/lib/firefox/firefox -contentproc -isForBrowser -prefsHandle 0:43945 -prefMapHandle 1:273080 -jsInitHandle 2:227036 -parentBuildID 20250828192042 -sandboxReporter 3 -chrootClient 4 -ipcHandle 5 -initialChannelId {11b2b3e1-311e-4c70-ae18-f2e15e04612c} -parentPid 5047 -crashReporter 6 -crashHelper 7 -greomni /snap/firefox/6738/usr/lib/firefox/omni.ja -appomni /snap/firefox/6738/usr/lib/firefox/browser/omni.ja -appDir /snap/firefox/6738/usr/lib/firefox/browser 8 tab
+[2025-09-08 19:54:47]   jelena      5565    5213  0 15:56 ?        00:00:33 /snap/firefox/6738/usr/lib/firefox/firefox -contentproc -isForBrowser -prefsHandle 0:43945 -prefMapHandle 1:273080 -jsInitHandle 2:227036 -parentBuildID 20250828192042 -sandboxReporter 3 -chrootClient 4 -ipcHandle 5 -initialChannelId {5beb1644-3593-45e9-acc1-38ee8f1117ec} -parentPid 5047 -crashReporter 6 -crashHelper 7 -greomni /snap/firefox/6738/usr/lib/firefox/omni.ja -appomni /snap/firefox/6738/usr/lib/firefox/browser/omni.ja -appDir /snap/firefox/6738/usr/lib/firefox/browser 9 tab
+[2025-09-08 19:54:47]   jelena     10860    5213  0 18:00 ?        00:00:00 /snap/firefox/6738/usr/lib/firefox/firefox -contentproc -isForBrowser -prefsHandle 0:44094 -prefMapHandle 1:273080 -jsInitHandle 2:227036 -parentBuildID 20250828192042 -sandboxReporter 3 -chrootClient 4 -ipcHandle 5 -initialChannelId {6a02716c-31e3-4181-9026-55764459d558} -parentPid 5047 -crashReporter 6 -crashHelper 7 -greomni /snap/firefox/6738/usr/lib/firefox/omni.ja -appomni /snap/firefox/6738/usr/lib/firefox/browser/omni.ja -appDir /snap/firefox/6738/usr/lib/firefox/browser 52 tab
+[2025-09-08 19:54:47]   jelena     10973    5213  0 18:00 ?        00:00:12 /snap/firefox/6738/usr/lib/firefox/firefox -contentproc -isForBrowser -prefsHandle 0:44094 -prefMapHandle 1:273080 -jsInitHandle 2:227036 -parentBuildID 20250828192042 -sandboxReporter 3 -chrootClient 4 -ipcHandle 5 -initialChannelId {92f75c37-d09b-4b72-8ac8-3172319932e6} -parentPid 5047 -crashReporter 6 -crashHelper 7 -greomni /snap/firefox/6738/usr/lib/firefox/omni.ja -appomni /snap/firefox/6738/usr/lib/firefox/browser/omni.ja -appDir /snap/firefox/6738/usr/lib/firefox/browser 53 tab
+[2025-09-08 19:54:47]   jelena     11036    5213  0 18:01 ?        00:00:00 /snap/firefox/6738/usr/lib/firefox/firefox -contentproc -isForBrowser -prefsHandle 0:44094 -prefMapHandle 1:273080 -jsInitHandle 2:227036 -parentBuildID 20250828192042 -sandboxReporter 3 -chrootClient 4 -ipcHandle 5 -initialChannelId {dc07f711-aaa3-4caa-8595-49682ae7c4ba} -parentPid 5047 -crashReporter 6 -crashHelper 7 -greomni /snap/firefox/6738/usr/lib/firefox/omni.ja -appomni /snap/firefox/6738/usr/lib/firefox/browser/omni.ja -appDir /snap/firefox/6738/usr/lib/firefox/browser 54 tab
+[2025-09-08 19:54:47] [-] SECURITY ISSUE: NTP not synchronized!
+[2025-09-08 19:54:47]    Recommendation: Check NTP configuration
+[2025-09-08 19:54:48] [-] SECURITY ISSUE: System time not synchronized!
+[2025-09-08 19:54:48]    Recommendation: Configure time synchronization
+[2025-09-08 19:54:48] [+] Checking installed packages...
+[2025-09-08 19:54:48] [+] Number of installed packages (dpkg): 1848
+[2025-09-08 19:54:48] [-] SECURITY ISSUE: Too many packages installed!
+[2025-09-08 19:54:48]    Recommendation: Remove unnecessary packages
+[2025-09-08 19:54:50] [-] SECURITY ISSUE: Inappropriate packages for a server!
+[2025-09-08 19:54:50]    Recommendation: Remove GUI/games/multimedia packages
+[2025-09-08 19:54:50]    x11-xserver-utils - 7.7+9build1
+[2025-09-08 19:54:50]    python3-xkit - 0.5.0ubuntu5
+[2025-09-08 19:54:50]    libva-wayland2:amd64 - 2.14.0-1
+[2025-09-08 19:54:50]    adwaita-icon-theme - 41.0-1ubuntu1
+[2025-09-08 19:54:50]    libblockdev-crypto2:amd64 - 2.26-1ubuntu0.1
+[2025-09-08 19:54:50]    apg - 2.2.3.dfsg.1-5build2
+[2025-09-08 19:54:50]    ubuntu-wallpapers - 22.04.4-0ubuntu1
+[2025-09-08 19:54:50]    aisleriot - 1:3.22.22-1
+[2025-09-08 19:54:50]    libreoffice-base-core - 1:7.3.7-0ubuntu0.22.04.10
+[2025-09-08 19:54:50]    thunderbird - 1:128.12.0+build1-0ubuntu0.22.04.1
+[2025-09-08 19:54:50]    firefox - 1:1snap1-0ubuntu2
+[2025-09-08 19:54:50]    chromium-codecs-ffmpeg-extra - 1:85.0.4183.83-0ubuntu2.22.04.1
+[2025-09-08 19:54:50] [+] Number of installed packages (rpm): 0
+[2025-09-08 19:54:50] [+] Checking logging configuration...
+[2025-09-08 19:54:50] [+] Logging service is running:
+[2025-09-08 19:54:50]    root        8871       1  0 17:26 ?        00:00:05 /lib/systemd/systemd-journald
+[2025-09-08 19:54:50] [+] Systemd journal is active
+[2025-09-08 19:54:50] [-] No logging configuration files found
+[2025-09-08 19:54:50] [-] SECURITY ISSUE: No remote logging configuration found!
+[2025-09-08 19:54:50]    Recommendation: Configure remote logging to central log server
+[2025-09-08 19:54:50] [+] Found log files:
+[2025-09-08 19:54:50]    /var/log/vboxadd-uninstall.log
+[2025-09-08 19:54:50]    /var/log/dpkg.log
+[2025-09-08 19:54:50]    /var/log/auth.log
+[2025-09-08 19:54:50]    /var/log/fontconfig.log
+[2025-09-08 19:54:50]    /var/log/gpu-manager.log
+[2025-09-08 19:54:50] [+] Log rotation configurations found:
+[2025-09-08 19:54:50]    alternatives
+[2025-09-08 19:54:50]    apport
+[2025-09-08 19:54:50]    apt
+[2025-09-08 19:54:50]    bootlog
+[2025-09-08 19:54:50]    btmp
+[2025-09-08 19:54:50] [+] Checking sudo access and system privileges...
+[2025-09-08 19:54:50] [+] Sudoers configuration:
+[2025-09-08 19:54:50]    Defaults	env_reset
+[2025-09-08 19:54:50]    Defaults	mail_badpass
+[2025-09-08 19:54:50]    Defaults	secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin"
+[2025-09-08 19:54:50]    Defaults	use_pty
+[2025-09-08 19:54:50]    root	ALL=(ALL:ALL) ALL
+[2025-09-08 19:54:50]    %admin ALL=(ALL) ALL
+[2025-09-08 19:54:50]    %sudo	ALL=(ALL:ALL) ALL
+[2025-09-08 19:54:50]    @includedir /etc/sudoers.d
+[2025-09-08 19:54:50] [+] Checking sudo privileges for all users...
+[2025-09-08 19:54:50] [!] User root has sudo privileges:
+[2025-09-08 19:54:50]   (ALL : ALL) ALL
+[2025-09-08 19:54:50] [!] User jelena has sudo privileges:
+[2025-09-08 19:54:50]   (ALL : ALL) ALL
+[2025-09-08 19:54:50] [+] Module 1 completed
+[2025-09-08 19:54:50] ============================================================
