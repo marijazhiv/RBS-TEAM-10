@@ -6,7 +6,12 @@
 *.dylib
 server
 server.exe
+# main executable (but not main.go source files)
 main
+!main.go
+!*/main.go
+!**/main.go
+!***/main.go
 main.exe
 
 # Test binary, built with `go test -c`
