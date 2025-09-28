@@ -6,12 +6,9 @@
 *.dylib
 server
 server.exe
-# main executable (but not main.go source files)
-main
-!main.go
-!*/main.go
-!**/main.go
-!***/main.go
+# Ignore main executable only in root and mini-zanzibar directory
+/main
+/mini-zanzibar/main
 main.exe
 
 # Test binary, built with `go test -c`
@@ -63,12 +60,20 @@ Thumbs.db
 data/leveldb/
 */data/leveldb/
 **/data/leveldb/
-CURRENT
-LOCK
-LOG
-MANIFEST-*
-*.ldb
-*.sst
+# LevelDB specific files only in data directories
+**/data/leveldb/CURRENT
+**/data/leveldb/LOCK
+**/data/leveldb/LOG
+**/data/leveldb/MANIFEST-*
+**/data/leveldb/*.ldb
+**/data/leveldb/*.sst
+# Also ignore these in any leveldb directory
+**/leveldb/CURRENT
+**/leveldb/LOCK
+**/leveldb/LOG
+**/leveldb/MANIFEST-*
+**/leveldb/*.ldb
+**/leveldb/*.sst
 
 # Consul data
 consul-data/
