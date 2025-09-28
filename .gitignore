@@ -1,0 +1,177 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+server
+server.exe
+main
+main.exe
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Dependency directories (remove the comment below to include it)
+# vendor/
+
+# Go workspace file
+go.work
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Database files
+data/
+*/data/
+leveldb/
+*/leveldb/
+*.db
+*.sqlite
+*.sqlite3
+
+# LevelDB files
+CURRENT
+LOCK
+LOG
+MANIFEST-*
+*.log
+*.ldb
+*.sst
+
+# Consul data
+consul-data/
+*/consul-data/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Log files
+logs/
+*.log
+log/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Build artifacts
+dist/
+build/
+out/
+
+# Docker files (optional - uncomment if not needed in repo)
+# Dockerfile
+# docker-compose.yml
+# .dockerignore
+
+# Test results
+coverage.txt
+coverage.html
+test-results/
+*.cover
+
+# Vendor directory
+vendor/
+
+# Node modules (if any JS tooling is added)
+node_modules/
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# nyc test coverage
+.nyc_output
+
+# Dependency lock files (uncomment if not tracking)
+# go.sum
+
+# Local development
+.local/
+local/
+
+# Backup files
+*.bak
+*.backup
+
+# Editor backup files
+*~
+*.orig
+
+# Windows specific
+*.lnk
+
+# Linux specific
+*.AppImage
+
+# macOS specific
+*.app
+
+# Certificate files (be careful with these)
+*.key
+*.pem
+*.crt
+*.cert
+
+# Helm charts (if added later)
+charts/
+*.tgz
+
+# Kubernetes manifests with secrets
+*secret*.yaml
+*secret*.yml
+
+# Terraform files (if infrastructure as code is added)
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+# Config files with sensitive data
+config.json
+config.yaml
+config.yml
+secrets.json
+secrets.yaml
+secrets.yml
+
+# Generated documentation
+docs/generated/
+api-docs/
+
+# Profiling data
+*.prof
+*.pprof
+
+# Memory dumps
+*.dump
+*.heap
+
+# Debug files
+debug
+*.debug
