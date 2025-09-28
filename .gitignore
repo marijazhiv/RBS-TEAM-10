@@ -21,6 +21,17 @@ main.exe
 # Go workspace file
 go.work
 
+# Explicitly include important directories and Go source files
+!cmd/
+!cmd/**
+!internal/
+!internal/**
+!pkg/
+!pkg/**
+!*.go
+!go.mod
+!go.sum
+
 # IDE files
 .vscode/
 .idea/
@@ -43,12 +54,14 @@ Thumbs.db
 *.sqlite
 *.sqlite3
 
-# LevelDB files
+# LevelDB files (only in data directories)
+data/leveldb/
+*/data/leveldb/
+**/data/leveldb/
 CURRENT
 LOCK
 LOG
 MANIFEST-*
-*.log
 *.ldb
 *.sst
 
