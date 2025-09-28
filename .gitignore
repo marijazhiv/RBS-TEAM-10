@@ -4,9 +4,13 @@
 *.dll
 *.so
 *.dylib
-server
+# Ignore server executable only in root and mini-zanzibar directory
+/server
+/mini-zanzibar/server
 server.exe
-main
+# Ignore main executable only in root and mini-zanzibar directory
+/main
+/mini-zanzibar/main
 main.exe
 
 # Test binary, built with `go test -c`
@@ -20,6 +24,17 @@ main.exe
 
 # Go workspace file
 go.work
+
+# Explicitly include important directories and Go source files
+!cmd/
+!cmd/**
+!internal/
+!internal/**
+!pkg/
+!pkg/**
+!*.go
+!go.mod
+!go.sum
 
 # IDE files
 .vscode/
@@ -38,22 +53,29 @@ ehthumbs.db
 Thumbs.db
 
 # Database files
-data/
-*/data/
-leveldb/
-*/leveldb/
+
 *.db
 *.sqlite
 *.sqlite3
 
-# LevelDB files
-CURRENT
-LOCK
-LOG
-MANIFEST-*
-*.log
-*.ldb
-*.sst
+# LevelDB files (only in data directories)
+data/leveldb/
+*/data/leveldb/
+**/data/leveldb/
+# LevelDB specific files only in data directories
+**/data/leveldb/CURRENT
+**/data/leveldb/LOCK
+**/data/leveldb/LOG
+**/data/leveldb/MANIFEST-*
+**/data/leveldb/*.ldb
+**/data/leveldb/*.sst
+# Also ignore these in any leveldb directory
+**/leveldb/CURRENT
+**/leveldb/LOCK
+**/leveldb/LOG
+**/leveldb/MANIFEST-*
+**/leveldb/*.ldb
+**/leveldb/*.sst
 
 # Consul data
 consul-data/
