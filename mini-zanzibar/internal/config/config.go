@@ -21,6 +21,11 @@ type Config struct {
 	ConsulDatacenter string
 	ConsulToken      string
 
+	// Redis configuration
+	RedisAddress  string
+	RedisPassword string
+	RedisDB       int
+
 	// JWT configuration
 	JWTSecret string
 	JWTExpiry time.Duration
@@ -46,6 +51,9 @@ func Load() (*Config, error) {
 		ConsulAddress:     getEnvString("CONSUL_ADDRESS", "localhost:8500"),
 		ConsulDatacenter:  getEnvString("CONSUL_DATACENTER", "dc1"),
 		ConsulToken:       getEnvString("CONSUL_TOKEN", ""),
+		RedisAddress:      getEnvString("REDIS_ADDRESS", "localhost:6379"),
+		RedisPassword:     getEnvString("REDIS_PASSWORD", ""),
+		RedisDB:           getEnvInt("REDIS_DB", 0),
 		JWTSecret:         getEnvString("JWT_SECRET", "your-secret-key-here"),
 		LogLevel:          getEnvString("LOG_LEVEL", "info"),
 		LogFormat:         getEnvString("LOG_FORMAT", "json"),
