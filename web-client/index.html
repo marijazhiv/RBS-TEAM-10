@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DocuManager - Mini-Zanzibar Demo</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>DocuManager</h1>
+            <p>Document Management System powered by Mini-Zanzibar</p>
+            <div class="user-info">
+                <span id="current-user">Current User: <strong id="username">guest</strong></span>
+                <button onclick="showLoginModal()" id="login-btn">Login</button>
+                <button onclick="logout()" id="logout-btn" style="display: none;">Logout</button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- Login Section -->
+            <div id="login-section" class="section">
+                <h2>Login</h2>
+                <div class="quick-login">
+                    <p>Quick Login (Demo Users):</p>
+                    <button onclick="quickLogin('alice')" class="user-btn">👤 Alice (Owner)</button>
+                    <button onclick="quickLogin('bob')" class="user-btn">👤 Bob (Editor)</button>
+                    <button onclick="quickLogin('charlie')" class="user-btn">👤 Charlie (Viewer)</button>
+                    <button onclick="quickLogin('david')" class="user-btn">👤 David (No Access)</button>
+                </div>
+            </div>
+
+            <!-- Documents Section -->
+            <div id="documents-section" class="section" style="display: none;">
+                <h2>Documents</h2>
+                
+                <!-- Document Upload -->
+                <div class="upload-section">
+                    <h3>➕ Upload New Document</h3>
+                    <input type="text" id="doc-name" placeholder="Document name (e.g., report1, manual2)">
+                    <button onclick="uploadDocument()">Upload Document</button>
+                </div>
+
+                <!-- Document List -->
+                <div class="documents-list">
+                    <h3>Available Documents</h3>
+                    <div id="documents-container">
+                        <div class="document-item" data-doc="report1">
+                            <span class="doc-name">report1.pdf</span>
+                            <div class="doc-actions">
+                                <button onclick="openDocument('report1')" class="action-btn view">View</button>
+                                <button onclick="editDocument('report1')" class="action-btn edit">Edit</button>
+                                <button onclick="showShareModal('report1')" class="action-btn share">Shre</button>
+                            </div>
+                        </div>
+                        
+                        <div class="document-item" data-doc="manual2">
+                            <span class="doc-name">manual2.docx</span>
+                            <div class="doc-actions">
+                                <button onclick="openDocument('manual2')" class="action-btn view">View</button>
+                                <button onclick="editDocument('manual2')" class="action-btn edit">Edit</button>
+                                <button onclick="showShareModal('manual2')" class="action-btn share">Share</button>
+                            </div>
+                        </div>
+
+                        <div class="document-item" data-doc="secret3">
+                            <span class="doc-name">secret3.txt</span>
+                            <div class="doc-actions">
+                                <button onclick="openDocument('secret3')" class="action-btn view">View</button>
+                                <button onclick="editDocument('secret3')" class="action-btn edit">Edit</button>
+                                <button onclick="showShareModal('secret3')" class="action-btn share">Share</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Authorization Test Section -->
+            <div id="auth-test-section" class="section" style="display: none;">
+                <h2>Authorization Test</h2>
+                <div class="test-form">
+                    <div class="form-group">
+                        <label>User:</label>
+                        <input type="text" id="test-user" placeholder="e.g., alice">
+                    </div>
+                    <div class="form-group">
+                        <label>Document:</label>
+                        <input type="text" id="test-document" placeholder="e.g., report1">
+                    </div>
+                    <div class="form-group">
+                        <label>Permission:</label>
+                        <select id="test-permission">
+                            <option value="viewer">Viewer</option>
+                            <option value="editor">Editor</option>
+                            <option value="owner">Owner</option>
+                        </select>
+                    </div>
+                    <button onclick="testAuthorization()">Test Authorization</button>
+                </div>
+                <div id="test-result" class="result-container"></div>
+            </div>
+
+            <!-- Share Management Section -->
+            <div id="share-section" class="section" style="display: none;">
+                <h2>Share Management</h2>
+                <div class="share-form">
+                    <div class="form-group">
+                        <label>Document:</label>
+                        <input type="text" id="share-document" placeholder="e.g., report1">
+                    </div>
+                    <div class="form-group">
+                        <label>User:</label>
+                        <input type="text" id="share-user" placeholder="e.g., bob">
+                    </div>
+                    <div class="form-group">
+                        <label>Permission:</label>
+                        <select id="share-permission">
+                            <option value="viewer">Viwer</option>
+                            <option value="editor">Editor</option>
+                            <option value="owner">Owner</option>
+                        </select>
+                    </div>
+                    <button onclick="shareDocument()">Grant Access</button>
+                </div>
+                <div id="share-result" class="result-container"></div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="navigation">
+            <button onclick="showSection('documents')" class="nav-btn">Documents</button>
+            <button onclick="showSection('auth-test')" class="nav-btn">Auth Test</button>
+            <button onclick="showSection('share')" class="nav-btn">Share</button>
+        </nav>
+
+        <!-- Activity Log -->
+        <div class="activity-section">
+            <h3>Activity Log</h3>
+            <div id="activity-log" class="activity-log">
+                <div class="log-item">Welcome to DocuManager! Please login to start.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share Modal -->
+    <div id="share-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeShareModal()">&times;</span>
+            <h3>Share Document: <span id="modal-doc-name"></span></h3>
+            <div class="form-group">
+                <label>Share with user:</label>
+                <input type="text" id="modal-share-user" placeholder="Username (e.g., bob)">
+            </div>
+            <div class="form-group">
+                <label>Permission level:</label>
+                <select id="modal-share-permission">
+                    <option value="viewer">Viewer</option>
+                    <option value="editor">Editor</option>
+                    <option value="owner">Owner</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button onclick="executeShare()" class="primary-btn">Share</button>
+                <button onclick="closeShareModal()" class="secondary-btn">Cancel</button>
+            </div>
+            <div id="modal-result" class="result-container"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
