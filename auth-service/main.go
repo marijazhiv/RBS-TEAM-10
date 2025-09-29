@@ -97,9 +97,11 @@ func main() {
 	store := cookie.NewStore([]byte("secret-key-change-in-production"))
 	store.Options(sessions.Options{
 		Path:     "/",
-		MaxAge:   3600, // 1 hour
-		HttpOnly: true,
-		Secure:   false, // Set to true in production with HTTPS
+		MaxAge:   3600,                 // 1 hour
+		HttpOnly: false,                // Allow JavaScript access for debugging
+		Secure:   false,                // Set to true in production with HTTPS
+		SameSite: http.SameSiteLaxMode, // Change to Lax for better compatibility
+		Domain:   "",                   // Empty domain for localhost
 	})
 	r.Use(sessions.Sessions(SessionName, store))
 
@@ -190,7 +192,17 @@ func handleLogin(c *gin.Context) {
 	session.Set("user_id", user.ID)
 	session.Set("username", user.Username)
 	session.Set("role", user.Role)
-	session.Save()
+	err = session.Save()
+	if err != nil {
+		log.Printf("Failed to save session: %v", err)
+		c.JSON(http.StatusInternalServerError, LoginResponse{
+			Success: false,
+			Message: "Failed to save session",
+		})
+		return
+	}
+
+	log.Printf("✅ Login successful for user: %s, session saved", user.Username)
 
 	// Remove password from response
 	responseUser := user
@@ -261,7 +273,7 @@ func handleDocumentAccess(c *gin.Context) {
 	permission := c.DefaultQuery("permission", "viewer")
 
 	// Forward to Zanzibar for authorization check
-	checkURL := fmt.Sprintf("%s/acl/check?object=doc:%s&relation=%s&user=%s",
+	checkURL := fmt.Sprintf("%s/api/v1/acl/check?object=doc:%s&relation=%s&user=%s",
 		ZanzibarURL, docID, permission, userID)
 
 	resp, err := http.Get(checkURL)
@@ -295,13 +307,18 @@ func authMiddleware() gin.HandlerFunc {
 		username := session.Get("username")
 		role := session.Get("role")
 
+		log.Printf("🔍 Auth check - UserID: %v, Username: %v, Role: %v", userID, username, role)
+
 		if userID == nil || username == nil || role == nil {
+			log.Printf("❌ Authentication failed - missing session data")
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"error": "Authentication required",
 			})
 			c.Abort()
 			return
 		}
+
+		log.Printf("✅ Authentication successful for user: %s", username)
 
 		// Set user context for handlers
 		c.Set("user_id", userID.(string))
@@ -331,11 +348,27 @@ func adminOnly() gin.HandlerFunc {
 func proxyToZanzibar(c *gin.Context) {
 	userID := c.GetString("user_id")
 
+	log.Printf("🔄 Proxying %s %s for user: %s", c.Request.Method, c.Request.URL.Path, userID)
+
+	// Map API paths to Mini-Zanzibar v1 API
+	apiPath := c.Request.URL.Path
+	if apiPath == "/api/acl" {
+		apiPath = "/api/v1/acl"
+	} else if apiPath == "/api/acl/check" {
+		apiPath = "/api/v1/acl/check"
+	} else if apiPath == "/api/namespace" {
+		apiPath = "/api/v1/namespace"
+	} else if len(apiPath) > 14 && apiPath[:14] == "/api/namespace" {
+		apiPath = "/api/v1" + apiPath[4:] // /api/namespace/id -> /api/v1/namespace/id
+	}
+
 	// Build target URL
-	targetURL := ZanzibarURL + c.Request.URL.Path
+	targetURL := ZanzibarURL + apiPath
 	if c.Request.URL.RawQuery != "" {
 		targetURL += "?" + c.Request.URL.RawQuery
 	}
+
+	log.Printf("🎯 Target URL: %s", targetURL)
 
 	// Read request body
 	var body []byte
@@ -346,6 +379,7 @@ func proxyToZanzibar(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read request body"})
 			return
 		}
+		log.Printf("📄 Request body: %s", string(body))
 	}
 
 	// Create new request
@@ -365,6 +399,11 @@ func proxyToZanzibar(c *gin.Context) {
 	// Add user context header
 	req.Header.Set("X-User-ID", userID)
 
+	// Add user role header for bootstrap mode
+	if role := c.GetString("role"); role != "" {
+		req.Header.Set("X-User-Role", role)
+	}
+
 	// Make request to Zanzibar
 	client := &http.Client{Timeout: 30 * time.Second}
 	resp, err := client.Do(req)
@@ -381,8 +420,15 @@ func proxyToZanzibar(c *gin.Context) {
 		return
 	}
 
-	// Copy response headers
+	// Copy response headers (excluding CORS headers to avoid conflicts)
 	for key, values := range resp.Header {
+		// Skip CORS headers to let our middleware handle them
+		if key == "Access-Control-Allow-Origin" ||
+			key == "Access-Control-Allow-Methods" ||
+			key == "Access-Control-Allow-Headers" ||
+			key == "Access-Control-Allow-Credentials" {
+			continue
+		}
 		for _, value := range values {
 			c.Header(key, value)
 		}

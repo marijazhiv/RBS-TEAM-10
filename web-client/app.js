@@ -1,7 +1,8 @@
 // Configuration
-const API_BASE_URL = 'http://localhost:8080';
+const AUTH_BASE_URL = 'http://localhost:8081';
+const API_BASE_URL = 'http://localhost:8081/api';
 let currentUser = null;
-let shareModalDocument = null;
+let isAuthenticated = false;
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
@@ -9,447 +10,368 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeApp() {
-    // Check if Mini-Zanzibar is running
-    checkMiniZanzibarStatus();
+    // Check authentication status first
+    checkAuthStatus();
     
-    // Initialize default data
-    initializeDefaultData();
+    // Check if auth service is running
+    checkAuthServiceStatus();
     
-    // Show login section by default
-    showSection('documents');
+    // Initialize UI
+    initializeUI();
     
     logActivity('Application initialized. Please login to continue.');
+    
+    // Test connection to auth service
+    testAuthServiceConnection();
 }
 
-// Mini-Zanzibar API functions
-async function makeApiCall(endpoint, method = 'GET', data = null) {
+// Test connection to auth service
+async function testAuthServiceConnection() {
     try {
-        const config = {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        };
-        
-        if (data) {
-            config.body = JSON.stringify(data);
-        }
-        
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        return await response.json();
-    } catch (error) {
-        console.error('API call failed:', error);
-        logActivity(`API Error: ${error.message}`, 'error');
-        throw error;
-    }
-}
-
-async function checkMiniZanzibarStatus() {
-    try {
-        await makeApiCall('/health');
-        logActivity('✅ Connected to Mini-Zanzibar successfully', 'success');
-        updateConnectionStatus(true);
-        
-        // Check if namespace exists
-        try {
-            await makeApiCall('/acl/check?object=doc:test&relation=viewer&user=user:test');
-            logActivity('✅ Namespace "doc" is configured', 'success');
-        } catch (error) {
-            if (error.message.includes('namespace not found')) {
-                logActivity('⚠️ Namespace "doc" not found. Creating...', 'info');
-                await initializeNamespace();
-            }
+        console.log('Testing connection to auth service...');
+        const response = await fetch(`${AUTH_BASE_URL}/health`);
+        if (response.ok) {
+            const data = await response.json();
+            console.log('Auth service connection test successful:', data);
+            logActivity('✅ Auth service connection test successful', 'success');
+        } else {
+            throw new Error(`Auth service returned status: ${response.status}`);
         }
     } catch (error) {
-        logActivity('❌ Failed to connect to Mini-Zanzibar. Make sure it\'s running on port 8080.', 'error');
-        updateConnectionStatus(false);
+        console.error('Auth service connection test failed:', error);
+        logActivity(`❌ Auth service connection test failed: ${error.message}`, 'error');
     }
-}
-
-async function initializeNamespace() {
-    try {
-        const namespaceConfig = {
-            namespace: "doc",
-            relations: {
-                owner: {},
-                editor: {
-                    union: [
-                        { this: {} },
-                        { computed_userset: { relation: "owner" } }
-                    ]
-                },
-                viewer: {
-                    union: [
-                        { this: {} },
-                        { computed_userset: { relation: "editor" } }
-                    ]
-                }
-            }
-        };
-        
-        await makeApiCall('/namespace', 'POST', namespaceConfig);
-        logActivity('✅ Created "doc" namespace with hierarchical permissions', 'success');
-    } catch (error) {
-        logActivity('⚠️ Could not create namespace automatically. You may need to create it manually.', 'error');
-    }
-}
-
-// Mini-Zanzibar API functions
-async function makeApiCall(endpoint, method = 'GET', data = null) {
-    try {
-        const config = {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        };
-        
-        if (data) {
-            config.body = JSON.stringify(data);
-        }
-        
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-        
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        return await response.json();
-    } catch (error) {
-        console.error('API call failed:', error);
-        logActivity(`API Error: ${error.message}`, 'error');
-        throw error;
-    }
-}
-
-async function checkMiniZanzibarStatus() {
-    try {
-        await makeApiCall('/health');
-        logActivity('Connected to Mini-Zanzibar successfully', 'success');
-        updateConnectionStatus(true);
-    } catch (error) {
-        logActivity('Failed to connect to Mini-Zanzibar. Make sure it\'s running on port 8080.', 'error');
-        updateConnectionStatus(false);
-    }
-}
-
-function updateConnectionStatus(isConnected) {
-    const statusIndicator = document.createElement('span');
-    statusIndicator.className = `status-indicator ${isConnected ? 'status-online' : 'status-offline'}`;
-    
-    const statusText = document.createElement('span');
-    statusText.textContent = isConnected ? 'Connected to Mini-Zanzibar' : 'Mini-Zanzibar Offline';
-    
-    const header = document.querySelector('header p');
-    header.innerHTML = '';
-    header.appendChild(statusIndicator);
-    header.appendChild(statusText);
-}
-
-// Initialize default data (Demo ACLs)
-async function initializeDefaultData() {
-    // For demo purposes, show what the system looks like
-    logActivity('Demo system ready. Creating simulated ACL data for demonstration...');
-    
-    // Simulate some demo ACLs in memory for the demo
-    window.demoACLs = [
-        { object: 'doc:report1', relation: 'owner', user: 'user:alice' },
-        { object: 'doc:report1', relation: 'editor', user: 'user:bob' },
-        { object: 'doc:manual2', relation: 'owner', user: 'user:alice' },
-        { object: 'doc:manual2', relation: 'viewer', user: 'user:charlie' },
-        { object: 'doc:secret3', relation: 'owner', user: 'user:alice' }
-    ];
-    
-    logActivity('📝 Demo ACLs loaded for testing purposes:', 'info');
-    window.demoACLs.forEach(acl => {
-        logActivity(`  • ${acl.user} has ${acl.relation} access to ${acl.object}`, 'info');
-    });
-    
-    logActivity('💡 Note: In production, these would be stored in Mini-Zanzibar', 'info');
 }
 
 // Authentication functions
-function quickLogin(username) {
-    currentUser = username;
-    document.getElementById('username').textContent = username;
-    document.getElementById('login-btn').style.display = 'none';
-    document.getElementById('logout-btn').style.display = 'inline-block';
-    
-    // Hide login section and show documents
-    document.getElementById('login-section').style.display = 'none';
-    showSection('documents');
-    
-    logActivity(`👤 Logged in as ${username}`, 'success');
-    
-    // Update UI based on user permissions
-    updateDocumentPermissions();
+async function checkAuthStatus() {
+    try {
+        const response = await makeAuthCall('/auth/me');
+        if (response.user_id) {
+            currentUser = {
+                id: response.user_id,
+                username: response.username,
+                role: response.role
+            };
+            isAuthenticated = true;
+            showSection('documents');
+            updateUserDisplay();
+            logActivity(`✅ Welcome back, ${currentUser.username}!`, 'success');
+        } else {
+            showLoginForm();
+        }
+    } catch (error) {
+        showLoginForm();
+        logActivity('Please login to continue', 'info');
+    }
 }
 
-function logout() {
-    currentUser = null;
-    document.getElementById('username').textContent = 'guest';
-    document.getElementById('login-btn').style.display = 'inline-block';
-    document.getElementById('logout-btn').style.display = 'none';
+async function login(username, password) {
+    try {
+        const response = await makeAuthCall('/auth/login', 'POST', {
+            username: username,
+            password: password
+        });
+        
+        if (response.success) {
+            currentUser = response.user;
+            isAuthenticated = true;
+            hideLoginForm();
+            showSection('documents');
+            updateUserDisplay();
+            logActivity(`✅ Login successful! Welcome, ${currentUser.username}`, 'success');
+            
+            // Test session immediately after login
+            setTimeout(async () => {
+                try {
+                    const meResponse = await makeAuthCall('/auth/me');
+                    logActivity(`✅ Session test successful: ${meResponse.username}`, 'success');
+                    loadDocuments();
+                } catch (error) {
+                    logActivity(`❌ Session test failed: ${error.message}`, 'error');
+                    logActivity('Please try logging in again', 'error');
+                }
+            }, 500);
+        } else {
+            showLoginError(response.message);
+            logActivity(`❌ Login failed: ${response.message}`, 'error');
+        }
+    } catch (error) {
+        showLoginError('Login failed. Please check your credentials.');
+        logActivity(`❌ Login error: ${error.message}`, 'error');
+    }
+}
+
+async function logout() {
+    try {
+        await makeAuthCall('/auth/logout', 'POST');
+        currentUser = null;
+        isAuthenticated = false;
+        showLoginForm();
+        logActivity('Logged out successfully', 'info');
+    } catch (error) {
+        logActivity('Logout error', 'error');
+    }
+}
+
+// API call functions
+async function makeAuthCall(endpoint, method = 'GET', data = null) {
+    try {
+        console.log(`Making ${method} request to ${AUTH_BASE_URL}${endpoint}`);
+        const config = {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include' // Include cookies for session management
+        };
+        
+        if (data) {
+            config.body = JSON.stringify(data);
+            console.log('Request data:', data);
+        }
+        
+        const response = await fetch(`${AUTH_BASE_URL}${endpoint}`, config);
+        console.log('Response status:', response.status);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        console.log('Response data:', result);
+        return result;
+    } catch (error) {
+        console.error('Auth API call failed:', error);
+        console.error('Error details:', {
+            message: error.message,
+            name: error.name,
+            stack: error.stack
+        });
+        throw error;
+    }
+}
+
+async function makeApiCall(endpoint, method = 'GET', data = null) {
+    if (!isAuthenticated) {
+        throw new Error('Authentication required');
+    }
     
-    // Show login section
+    try {
+        const config = {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include' // Include cookies for session management
+        };
+        
+        if (data) {
+            config.body = JSON.stringify(data);
+        }
+        
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+        
+        if (response.status === 401) {
+            // Session expired
+            isAuthenticated = false;
+            currentUser = null;
+            showLoginForm();
+            throw new Error('Session expired. Please login again.');
+        }
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        return await response.json();
+    } catch (error) {
+        console.error('API call failed:', error);
+        logActivity(`API Error: ${error.message}`, 'error');
+        throw error;
+    }
+}
+
+// Service status checks
+async function checkAuthServiceStatus() {
+    try {
+        const response = await fetch(`${AUTH_BASE_URL}/health`);
+        if (response.ok) {
+            logActivity('✅ Connected to Auth Service successfully', 'success');
+            updateConnectionStatus(true);
+        } else {
+            throw new Error('Auth service unhealthy');
+        }
+    } catch (error) {
+        logActivity('❌ Failed to connect to Auth Service. Make sure it\'s running on port 8081.', 'error');
+        updateConnectionStatus(false);
+    }
+}
+
+// UI Management
+function initializeUI() {
+    // Setup login form
+    setupLoginForm();
+    
+    // Setup navigation
+    setupNavigation();
+    
+    // Setup logout button
+    setupLogoutButton();
+    
+    // Initially hide main content if not authenticated
+    if (!isAuthenticated) {
+        showLoginForm();
+    }
+}
+
+function setupLoginForm() {
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            await login(username, password);
+        });
+    }
+}
+
+function setupNavigation() {
+    // Navigation button event listeners
+    document.getElementById('nav-documents').addEventListener('click', () => {
+        if (isAuthenticated) {
+            showSection('documents');
+            loadDocuments();
+        }
+    });
+    
+    document.getElementById('nav-access').addEventListener('click', () => {
+        if (isAuthenticated) {
+            showSection('access-control');
+        }
+    });
+    
+    document.getElementById('nav-test').addEventListener('click', () => {
+        if (isAuthenticated) {
+            showSection('test-authorization');
+        }
+    });
+}
+
+function setupLogoutButton() {
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', logout);
+    }
+}
+
+function showLoginForm() {
     document.getElementById('login-section').style.display = 'block';
-    document.getElementById('documents-section').style.display = 'none';
-    document.getElementById('auth-test-section').style.display = 'none';
-    document.getElementById('share-section').style.display = 'none';
-    
-    logActivity('👋 Logged out', 'info');
+    document.getElementById('main-content').style.display = 'none';
+    document.getElementById('user-info').style.display = 'none';
 }
 
-// Document operations
-async function openDocument(documentId) {
-    if (!currentUser) {
-        showError('Please login first');
-        return;
-    }
-    
-    // Use demo mode since real ACLs aren't stored
-    const hasAccess = checkDemoPermission(documentId, 'viewer', currentUser);
-    
-    if (hasAccess) {
-        logActivity(`📖 ${currentUser} opened document: ${documentId} (demo mode)`, 'success');
-        showSuccess(`Successfully opened ${documentId}`);
-    } else {
-        logActivity(`❌ ${currentUser} denied access to view: ${documentId}`, 'error');
-        showError(`Access denied: You don't have permission to view ${documentId}`);
+function hideLoginForm() {
+    document.getElementById('login-section').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+    document.getElementById('user-info').style.display = 'block';
+}
+
+function showLoginError(message) {
+    const errorDiv = document.getElementById('login-error');
+    if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
     }
 }
 
-async function editDocument(documentId) {
-    if (!currentUser) {
-        showError('Please login first');
-        return;
-    }
-    
-    // Use demo mode since real ACLs aren't stored
-    const hasAccess = checkDemoPermission(documentId, 'editor', currentUser);
-    
-    if (hasAccess) {
-        logActivity(`✏️ ${currentUser} edited document: ${documentId} (demo mode)`, 'success');
-        showSuccess(`Successfully edited ${documentId}`);
-    } else {
-        logActivity(`❌ ${currentUser} denied access to edit: ${documentId}`, 'error');
-        showError(`Access denied: You don't have permission to edit ${documentId}`);
-    }
-}
-
-// Demo permission checker with hierarchical rules
-function checkDemoPermission(documentId, requiredRelation, user) {
-    const userWithPrefix = `user:${user}`;
-    const objectWithPrefix = `doc:${documentId}`;
-    
-    // Check direct permissions
-    const directAccess = window.demoACLs?.some(acl => 
-        acl.object === objectWithPrefix && 
-        acl.relation === requiredRelation && 
-        acl.user === userWithPrefix
-    );
-    
-    if (directAccess) return true;
-    
-    // Check hierarchical permissions (computed usersets)
-    if (requiredRelation === 'viewer') {
-        // Viewers inherit from editors
-        const editorAccess = window.demoACLs?.some(acl => 
-            acl.object === objectWithPrefix && 
-            acl.relation === 'editor' && 
-            acl.user === userWithPrefix
-        );
-        if (editorAccess) return true;
+function updateUserDisplay() {
+    if (currentUser) {
+        const userInfo = document.getElementById('user-info');
+        const userDisplay = document.getElementById('current-user');
+        const roleDisplay = document.getElementById('current-role');
         
-        // Viewers inherit from owners (via editors)
-        const ownerAccess = window.demoACLs?.some(acl => 
-            acl.object === objectWithPrefix && 
-            acl.relation === 'owner' && 
-            acl.user === userWithPrefix
-        );
-        if (ownerAccess) return true;
+        if (userDisplay) userDisplay.textContent = currentUser.username;
+        if (roleDisplay) roleDisplay.textContent = currentUser.role;
+        if (userInfo) userInfo.style.display = 'block';
     }
-    
-    if (requiredRelation === 'editor') {
-        // Editors inherit from owners
-        const ownerAccess = window.demoACLs?.some(acl => 
-            acl.object === objectWithPrefix && 
-            acl.relation === 'owner' && 
-            acl.user === userWithPrefix
-        );
-        if (ownerAccess) return true;
-    }
-    
-    return false;
 }
 
-async function uploadDocument() {
-    if (!currentUser) {
-        showError('Please login first');
-        return;
-    }
-    
-    const docName = document.getElementById('doc-name').value.trim();
-    if (!docName) {
-        showError('Please enter a document name');
-        return;
-    }
-    
+// Document Management
+async function loadDocuments() {
     try {
-        // Grant owner permission to the current user for the new document
-        const aclData = {
-            object: `doc:${docName}`,
-            relation: 'owner',
-            user: `user:${currentUser}`
-        };
+        logActivity('🔄 Loading documents...', 'info');
+        const response = await makeAuthCall('/documents');
+        const documentsContainer = document.getElementById('documents-list');
         
-        await makeApiCall('/acl', 'POST', aclData);
-        
-        logActivity(`${currentUser} uploaded document: ${docName}`, 'success');
-        showSuccess(`Successfully uploaded ${docName}. You are now the owner.`);
-        
-        // Clear the input
-        document.getElementById('doc-name').value = '';
-        
-        // Add document to the list
-        addDocumentToList(docName);
-        
-    } catch (error) {
-        showError(`Failed to upload document: ${error.message}`);
-    }
-}
-
-function addDocumentToList(docName) {
-    const container = document.getElementById('documents-container');
-    
-    const docItem = document.createElement('div');
-    docItem.className = 'document-item';
-    docItem.setAttribute('data-doc', docName);
-    
-    docItem.innerHTML = `
-        <span class="doc-icon">📄</span>
-        <span class="doc-name">${docName}</span>
-        <div class="doc-actions">
-            <button onclick="openDocument('${docName}')" class="action-btn view">👁️ View</button>
-            <button onclick="editDocument('${docName}')" class="action-btn edit">✏️ Edit</button>
-            <button onclick="showShareModal('${docName}')" class="action-btn share">🔗 Share</button>
-        </div>
-    `;
-    
-    container.appendChild(docItem);
-}
-
-// Share functionality
-function showShareModal(documentId) {
-    if (!currentUser) {
-        showError('Please login first');
-        return;
-    }
-    
-    shareModalDocument = documentId;
-    document.getElementById('modal-doc-name').textContent = documentId;
-    document.getElementById('modal-share-user').value = '';
-    document.getElementById('modal-share-permission').value = 'viewer';
-    document.getElementById('modal-result').innerHTML = '';
-    document.getElementById('share-modal').style.display = 'block';
-}
-
-function closeShareModal() {
-    document.getElementById('share-modal').style.display = 'none';
-    shareModalDocument = null;
-}
-
-async function executeShare() {
-    const shareUser = document.getElementById('modal-share-user').value.trim();
-    const sharePermission = document.getElementById('modal-share-permission').value;
-    
-    if (!shareUser) {
-        document.getElementById('modal-result').innerHTML = '<div class="result-container result-error">Please enter a username</div>';
-        return;
-    }
-    
-    try {
-        // First check if current user can share (needs owner permission)
-        const canShare = await makeApiCall(`/acl/check?object=doc:${shareModalDocument}&relation=owner&user=user:${currentUser}`);
-        
-        if (!canShare.authorized) {
-            document.getElementById('modal-result').innerHTML = '<div class="result-container result-error">Access denied: Only owners can share documents</div>';
-            return;
+        if (response.documents && response.documents.length > 0) {
+            documentsContainer.innerHTML = response.documents.map(doc => `
+                <div class="document-item">
+                    <h3>${doc}</h3>
+                    <div class="document-actions">
+                        <button onclick="openDocument('${doc}')" class="btn-primary">Open</button>
+                        <button onclick="editDocument('${doc}')" class="btn-secondary">Edit</button>
+                        <button onclick="shareDocument('${doc}')" class="btn-tertiary">Share</button>
+                    </div>
+                </div>
+            `).join('');
+        } else {
+            documentsContainer.innerHTML = '<p>No documents available for your role.</p>';
         }
         
-        // Grant the permission
-        const aclData = {
-            object: `doc:${shareModalDocument}`,
-            relation: sharePermission,
-            user: `user:${shareUser}`
-        };
-        
-        await makeApiCall('/acl', 'POST', aclData);
-        
-        logActivity(`🔗 ${currentUser} shared ${shareModalDocument} with ${shareUser} as ${sharePermission}`, 'success');
-        document.getElementById('modal-result').innerHTML = `<div class="result-container result-success">Successfully shared ${shareModalDocument} with ${shareUser} as ${sharePermission}</div>`;
-        
-        setTimeout(() => {
-            closeShareModal();
-        }, 2000);
-        
+        logActivity(`📄 Loaded ${response.documents ? response.documents.length : 0} documents`, 'success');
     } catch (error) {
-        document.getElementById('modal-result').innerHTML = `<div class="result-container result-error">Failed to share: ${error.message}</div>`;
-    }
-}
-
-// Share management
-async function shareDocument() {
-    const docName = document.getElementById('share-document').value.trim();
-    const userName = document.getElementById('share-user').value.trim();
-    const permission = document.getElementById('share-permission').value;
-    
-    if (!docName || !userName) {
-        showError('Please fill in all fields');
-        return;
-    }
-    
-    if (!currentUser) {
-        showError('Please login first');
-        return;
-    }
-    
-    try {
-        // First check if current user can share (needs owner permission)
-        const canShare = await makeApiCall(`/acl/check?object=doc:${docName}&relation=owner&user=user:${currentUser}`);
-        
-        if (!canShare.authorized) {
-            showError('Access denied: Only owners can share documents');
-            return;
+        logActivity(`Failed to load documents: ${error.message}`, 'error');
+        if (error.message.includes('401')) {
+            logActivity('❌ Session may have expired. Please try logging in again.', 'error');
         }
-        
-        // Grant the permission
-        const aclData = {
-            object: `doc:${docName}`,
-            relation: permission,
-            user: `user:${userName}`
-        };
-        
-        await makeApiCall('/acl', 'POST', aclData);
-        
-        logActivity(`${currentUser} shared ${docName} with ${userName} as ${permission}`, 'success');
-        showShareSuccess(`Successfully shared ${docName} with ${userName} as ${permission}`);
-        
-        // Clear form
-        document.getElementById('share-document').value = '';
-        document.getElementById('share-user').value = '';
-        
-    } catch (error) {
-        showShareError(`Failed to share: ${error.message}`);
     }
 }
 
-// Authorization testing
+async function openDocument(docName) {
+    try {
+        const response = await makeAuthCall(`/documents/${docName}/access?permission=viewer`);
+        
+        if (response.authorized) {
+            logActivity(`📖 Opened document: ${docName}`, 'success');
+            showDocumentContent(docName, 'Viewing document content...');
+        } else {
+            logActivity(`❌ Access denied: Cannot view ${docName}`, 'error');
+            showAccessDenied();
+        }
+    } catch (error) {
+        logActivity(`Error opening document: ${error.message}`, 'error');
+    }
+}
+
+async function editDocument(docName) {
+    try {
+        const response = await makeAuthCall(`/documents/${docName}/access?permission=editor`);
+        
+        if (response.authorized) {
+            logActivity(`✏️ Editing document: ${docName}`, 'success');
+            showDocumentContent(docName, 'Editing document content...', true);
+        } else {
+            logActivity(`❌ Access denied: Cannot edit ${docName}`, 'error');
+            showAccessDenied();
+        }
+    } catch (error) {
+        logActivity(`Error editing document: ${error.message}`, 'error');
+    }
+}
+
+function shareDocument(docName) {
+    if (currentUser.role !== 'admin') {
+        logActivity(`❌ Access denied: Only admins can share documents`, 'error');
+        return;
+    }
+    
+    // Show share modal (simplified for demo)
+    logActivity(`📤 Share functionality for ${docName} (Admin only)`, 'info');
+}
+
+// Authorization Testing
 async function testAuthorization() {
     const user = document.getElementById('test-user').value.trim();
     const document = document.getElementById('test-document').value.trim();
@@ -460,150 +382,186 @@ async function testAuthorization() {
         return;
     }
     
-    // Use demo mode for testing since real ACLs aren't stored
-    const hasAccess = checkDemoPermission(document, permission, user);
-    
-    const resultText = hasAccess ? 
-        `✅ AUTHORIZED: ${user} has ${permission} access to ${document}` :
-        `❌ DENIED: ${user} does NOT have ${permission} access to ${document}`;
-    
-    const resultClass = hasAccess ? 'result-success' : 'result-error';
-    
-    showTestResult(resultText, resultClass);
-    logActivity(`🔐 Authorization test: ${user} -> ${document} (${permission}): ${hasAccess ? 'ALLOWED' : 'DENIED'}`, hasAccess ? 'success' : 'error');
-}
-
-// Update document permissions UI
-async function updateDocumentPermissions() {
-    if (!currentUser) return;
-    
-    const documents = document.querySelectorAll('.document-item');
-    
-    for (const docElement of documents) {
-        const docId = docElement.getAttribute('data-doc');
-        const viewBtn = docElement.querySelector('.action-btn.view');
-        const editBtn = docElement.querySelector('.action-btn.edit');
-        const shareBtn = docElement.querySelector('.action-btn.share');
+    try {
+        const response = await makeApiCall(`/acl/check?object=doc:${document}&relation=${permission}&user=user:${user}`);
         
-        try {
-            // Check view permission
-            const canView = await makeApiCall(`/acl/check?object=doc:${docId}&relation=viewer&user=user:${currentUser}`);
-            viewBtn.disabled = !canView.authorized;
-            
-            // Check edit permission
-            const canEdit = await makeApiCall(`/acl/check?object=doc:${docId}&relation=editor&user=user:${currentUser}`);
-            editBtn.disabled = !canEdit.authorized;
-            
-            // Check owner permission (for sharing)
-            const canShare = await makeApiCall(`/acl/check?object=doc:${docId}&relation=owner&user=user:${currentUser}`);
-            shareBtn.disabled = !canShare.authorized;
-            
-        } catch (error) {
-            console.error(`Failed to check permissions for ${docId}:`, error);
-        }
+        const resultText = response.authorized ? 
+            `✅ AUTHORIZED: ${user} has ${permission} access to ${document}` :
+            `❌ DENIED: ${user} does NOT have ${permission} access to ${document}`;
+        
+        const resultClass = response.authorized ? 'result-success' : 'result-error';
+        
+        showTestResult(resultText, resultClass);
+        logActivity(`🔐 Authorization test: ${user} -> ${document} (${permission}): ${response.authorized ? 'ALLOWED' : 'DENIED'}`, response.authorized ? 'success' : 'error');
+        
+    } catch (error) {
+        showTestResult(`Error: ${error.message}`, 'result-error');
+        logActivity(`🔐 Authorization test error: ${error.message}`, 'error');
     }
 }
 
-// Navigation
-function showSection(sectionName) {
-    // Hide all sections
-    document.getElementById('documents-section').style.display = 'none';
-    document.getElementById('auth-test-section').style.display = 'none';
-    document.getElementById('share-section').style.display = 'none';
+// ACL Management (Admin only)
+async function createACL() {
+    if (currentUser.role !== 'admin') {
+        logActivity(`❌ Access denied: Only admins can manage ACLs`, 'error');
+        return;
+    }
     
-    // Show selected section
-    document.getElementById(`${sectionName}-section`).style.display = 'block';
+    const object = document.getElementById('acl-object').value.trim();
+    const relation = document.getElementById('acl-relation').value.trim();
+    const user = document.getElementById('acl-user').value.trim();
     
-    // Update navigation buttons
-    document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-    event?.target?.classList.add('active');
+    if (!object || !relation || !user) {
+        showTestError('Please fill in all ACL fields');
+        return;
+    }
     
-    // Update document permissions if showing documents
-    if (sectionName === 'documents' && currentUser) {
-        updateDocumentPermissions();
+    try {
+        const response = await makeApiCall('/acl', 'POST', {
+            object: object,
+            relation: relation,
+            user: user
+        });
+        
+        logActivity(`✅ ACL created: ${object}#${relation}@${user}`, 'success');
+        clearACLForm();
+    } catch (error) {
+        logActivity(`❌ Failed to create ACL: ${error.message}`, 'error');
     }
 }
 
 // Utility functions
-function showError(message) {
-    const result = document.getElementById('test-result') || document.createElement('div');
-    result.innerHTML = `<div class="result-container result-error">${message}</div>`;
+function showSection(sectionName) {
+    // Hide all sections
+    const sections = ['documents', 'access-control', 'test-authorization'];
+    sections.forEach(section => {
+        const element = document.getElementById(section);
+        if (element) {
+            element.style.display = 'none';
+        }
+    });
+    
+    // Show selected section
+    const targetSection = document.getElementById(sectionName);
+    if (targetSection) {
+        targetSection.style.display = 'block';
+    }
+    
+    // Update navigation
+    updateNavigationState(sectionName);
 }
 
-function showSuccess(message) {
-    const result = document.getElementById('test-result') || document.createElement('div');
-    result.innerHTML = `<div class="result-container result-success">${message}</div>`;
-}
-
-function showTestResult(message, className) {
-    const result = document.getElementById('test-result');
-    result.innerHTML = `<div class="result-container ${className}">${message}</div>`;
-}
-
-function showTestError(message) {
-    showTestResult(message, 'result-error');
-}
-
-function showShareSuccess(message) {
-    const result = document.getElementById('share-result');
-    result.innerHTML = `<div class="result-container result-success">${message}</div>`;
-}
-
-function showShareError(message) {
-    const result = document.getElementById('share-result');
-    result.innerHTML = `<div class="result-container result-error">${message}</div>`;
+function updateNavigationState(activeSection) {
+    const navButtons = document.querySelectorAll('.nav-btn');
+    navButtons.forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    const activeBtn = document.getElementById(`nav-${activeSection}`);
+    if (activeBtn) {
+        activeBtn.classList.add('active');
+    }
 }
 
 function logActivity(message, type = 'info') {
-    const log = document.getElementById('activity-log');
     const timestamp = new Date().toLocaleTimeString();
+    const logEntry = document.createElement('div');
+    logEntry.className = `log-entry log-${type}`;
+    logEntry.innerHTML = `<span class="timestamp">[${timestamp}]</span> ${message}`;
     
-    const logItem = document.createElement('div');
-    logItem.className = `log-item ${type}`;
-    logItem.textContent = `[${timestamp}] ${message}`;
+    const logContainer = document.getElementById('activity-log');
+    if (logContainer) {
+        logContainer.appendChild(logEntry);
+        logContainer.scrollTop = logContainer.scrollHeight;
+    }
     
-    log.appendChild(logItem);
-    log.scrollTop = log.scrollHeight;
+    console.log(`[${timestamp}] ${message}`);
+}
+
+function updateConnectionStatus(isConnected) {
+    const statusIndicator = document.createElement('span');
+    statusIndicator.className = `status-indicator ${isConnected ? 'status-online' : 'status-offline'}`;
     
-    // Keep only last 20 log items
-    while (log.children.length > 20) {
-        log.removeChild(log.firstChild);
+    const statusText = document.createElement('span');
+    statusText.textContent = isConnected ? 'Connected to Auth Service' : 'Auth Service Offline';
+    
+    const header = document.querySelector('header p');
+    if (header) {
+        header.innerHTML = '';
+        header.appendChild(statusIndicator);
+        header.appendChild(statusText);
     }
 }
 
-// Login modal functions (for future enhancement)
-function showLoginModal() {
-    // For now, just scroll to login section
-    document.getElementById('login-section').scrollIntoView({ behavior: 'smooth' });
+function showDocumentContent(docName, content, isEditing = false) {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>${isEditing ? 'Editing' : 'Viewing'}: ${docName}</h3>
+                <button onclick="this.closest('.modal').remove()" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                ${isEditing ? 
+                    `<textarea rows="10" cols="50">${content}</textarea>` : 
+                    `<p>${content}</p>`
+                }
+            </div>
+            <div class="modal-footer">
+                ${isEditing ? 
+                    '<button onclick="saveDocument()" class="btn-primary">Save</button>' : 
+                    ''
+                }
+                <button onclick="this.closest(\'.modal\').remove()" class="btn-secondary">Close</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
 }
 
-// Close modal when clicking outside
-window.onclick = function(event) {
-    const modal = document.getElementById('share-modal');
-    if (event.target === modal) {
-        closeShareModal();
+function showAccessDenied() {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Access Denied</h3>
+                <button onclick="this.closest('.modal').remove()" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>❌ You don't have permission to access this resource.</p>
+                <p>Current user: <strong>${currentUser.username}</strong> (${currentUser.role})</p>
+            </div>
+            <div class="modal-footer">
+                <button onclick="this.closest('.modal').remove()" class="btn-secondary">Close</button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+function showTestResult(text, className) {
+    const resultDiv = document.getElementById('test-result');
+    if (resultDiv) {
+        resultDiv.textContent = text;
+        resultDiv.className = className;
+        resultDiv.style.display = 'block';
     }
 }
 
-// Keyboard shortcuts
-document.addEventListener('keydown', function(event) {
-    // ESC to close modal
-    if (event.key === 'Escape') {
-        closeShareModal();
+function showTestError(message) {
+    const errorDiv = document.getElementById('test-error');
+    if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
     }
-    
-    // Ctrl+1, Ctrl+2, Ctrl+3 for navigation
-    if (event.ctrlKey) {
-        switch(event.key) {
-            case '1':
-                showSection('documents');
-                break;
-            case '2':
-                showSection('auth-test');
-                break;
-            case '3':
-                showSection('share');
-                break;
-        }
-    }
-});
+}
+
+function clearACLForm() {
+    const fields = ['acl-object', 'acl-relation', 'acl-user'];
+    fields.forEach(field => {
+        const element = document.getElementById(field);
+        if (element) element.value = '';
+    });
+}
