@@ -6,13 +6,14 @@ import (
 	"mini-zanzibar/internal/config"
 	"mini-zanzibar/internal/database/consul"
 	"mini-zanzibar/internal/database/leveldb"
+	"mini-zanzibar/internal/database/redis"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
 
 // NewRouter creates and configures the API router
-func NewRouter(leveldbClient *leveldb.Client, consulClient *consul.Client, logger *zap.SugaredLogger, cfg *config.Config) *gin.Engine {
+func NewRouter(leveldbClient *leveldb.Client, consulClient *consul.Client, redisClient *redis.Client, logger *zap.SugaredLogger, cfg *config.Config) *gin.Engine {
 	// Set Gin mode based on environment
 	if cfg.LogLevel != "debug" {
 		gin.SetMode(gin.ReleaseMode)
@@ -31,7 +32,7 @@ func NewRouter(leveldbClient *leveldb.Client, consulClient *consul.Client, logge
 	router.Use(middleware.RateLimit(cfg.RateLimitRequests, cfg.RateLimitWindow))
 
 	// Initialize handlers
-	aclHandler := handlers.NewACLHandler(leveldbClient, consulClient, logger)
+	aclHandler := handlers.NewACLHandler(leveldbClient, consulClient, redisClient, logger)
 	namespaceHandler := handlers.NewNamespaceHandler(consulClient, logger)
 	healthHandler := handlers.NewHealthHandler(logger)
 

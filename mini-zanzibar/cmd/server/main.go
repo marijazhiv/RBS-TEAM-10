@@ -6,6 +6,7 @@ import (
 	"mini-zanzibar/internal/config"
 	"mini-zanzibar/internal/database/consul"
 	"mini-zanzibar/internal/database/leveldb"
+	"mini-zanzibar/internal/database/redis"
 	"mini-zanzibar/internal/utils"
 )
 
@@ -33,8 +34,16 @@ func main() {
 		logger.Fatal("Failed to initialize Consul", err)
 	}
 
+	// Initialize Redis for caching
+	redisClient, err := redis.NewClient(cfg.RedisAddress, cfg.RedisPassword, cfg.RedisDB)
+	if err != nil {
+		logger.Fatal("failed to initialize Redis", err)
+	}
+
+	defer redisClient.Close()
+
 	// Initialize API router
-	router := api.NewRouter(leveldbClient, consulClient, logger, cfg)
+	router := api.NewRouter(leveldbClient, consulClient, redisClient, logger, cfg)
 
 	// Start server
 	logger.Info("Starting Mini-Zanzibar server", "host", cfg.ServerHost, "port", cfg.ServerPort)
