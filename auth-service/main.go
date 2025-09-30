@@ -37,7 +37,7 @@ var demoUsers = map[string]User{
 		ID:       "user:alice",
 		Username: "alice",
 		Password: "$2a$10$N9qo8uLOickgx2ZMRZoMye.Uo0bSZ0.WllQD0J5XvYB8X1e0V0t9u", // bcrypt hash of "alice123"
-		Role:     "admin",
+		Role:     "owner",
 	},
 	"bob": {
 		ID:       "user:bob",
@@ -87,7 +87,7 @@ func main() {
 
 	// CORS configuration
 	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"http://localhost:3000", "http://127.0.0.1:3000", "http://[::1]:3000"}
+	config.AllowOrigins = []string{"http://localhost:3000", "http://localhost:3001", "http://127.0.0.1:3000", "http://127.0.0.1:3001", "http://[::1]:3000", "http://[::1]:3001"}
 	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
 	config.AllowHeaders = []string{"Origin", "Content-Type", "Accept", "Authorization", "X-Requested-With"}
 	config.AllowCredentials = true
@@ -249,7 +249,7 @@ func handleListDocuments(c *gin.Context) {
 	// Demo documents based on role
 	var documents []string
 	switch role {
-	case "admin":
+	case "owner":
 		documents = []string{"report1", "manual2", "config", "logs"}
 	case "editor":
 		documents = []string{"report1", "manual2"}
@@ -333,9 +333,9 @@ func authMiddleware() gin.HandlerFunc {
 func adminOnly() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		role := c.GetString("role")
-		if role != "admin" {
+		if role != "owner" {
 			c.JSON(http.StatusForbidden, gin.H{
-				"error": "Admin access required",
+				"error": "Owner access required",
 			})
 			c.Abort()
 			return

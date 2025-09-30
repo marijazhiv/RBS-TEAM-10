@@ -24,6 +24,7 @@ func NewRouter(leveldbClient *leveldb.Client, consulClient *consul.Client, redis
 	// Add middleware
 	router.Use(middleware.Logger(logger))
 	router.Use(middleware.Recovery(logger))
+	router.Use(middleware.UserContext()) // Extract user context from headers
 
 	if cfg.EnableCORS {
 		router.Use(middleware.CORS())

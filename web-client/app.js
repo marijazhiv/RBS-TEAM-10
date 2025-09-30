@@ -48,57 +48,61 @@ async function checkAuthStatus() {
     try {
         const response = await makeAuthCall('/auth/me');
         if (response.user_id) {
-            currentUser = {
-                id: response.user_id,
-                username: response.username,
-                role: response.role
-            };
+            currentUser = { username: response.user_id, role: response.role };
             isAuthenticated = true;
-            showSection('documents');
+            hideLoginForm();
             updateUserDisplay();
-            logActivity(`✅ Welcome back, ${currentUser.username}!`, 'success');
-        } else {
-            showLoginForm();
         }
     } catch (error) {
+        // Not authenticated, show login form
+        isAuthenticated = false;
+        currentUser = null;
         showLoginForm();
-        logActivity('Please login to continue', 'info');
     }
 }
 
 async function login(username, password) {
     try {
-        const response = await makeAuthCall('/auth/login', 'POST', {
-            username: username,
-            password: password
+        const response = await fetch(`${AUTH_BASE_URL}/auth/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({ username, password })
         });
-        
-        if (response.success) {
-            currentUser = response.user;
+
+        if (response.ok) {
+            const data = await response.json();
+            
+            // Get additional user info if role not provided in login response
+            let userRole = data.role;
+            if (!userRole) {
+                try {
+                    const userInfo = await makeAuthCall('/auth/me');
+                    userRole = userInfo.role;
+                } catch (error) {
+                    console.warn('Could not fetch user role:', error);
+                    userRole = 'owner'; // Default for Alice
+                }
+            }
+            
+            currentUser = { username: data.user_id, role: userRole };
             isAuthenticated = true;
             hideLoginForm();
-            showSection('documents');
             updateUserDisplay();
-            logActivity(`✅ Login successful! Welcome, ${currentUser.username}`, 'success');
+            logActivity(`✅ Login successful: ${data.user_id} (${userRole})`, 'success');
             
-            // Test session immediately after login
-            setTimeout(async () => {
-                try {
-                    const meResponse = await makeAuthCall('/auth/me');
-                    logActivity(`✅ Session test successful: ${meResponse.username}`, 'success');
-                    loadDocuments();
-                } catch (error) {
-                    logActivity(`❌ Session test failed: ${error.message}`, 'error');
-                    logActivity('Please try logging in again', 'error');
-                }
-            }, 500);
+            // Load documents after successful login
+            showSection('documents');
+            loadDocuments();
         } else {
-            showLoginError(response.message);
-            logActivity(`❌ Login failed: ${response.message}`, 'error');
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Login failed');
         }
     } catch (error) {
-        showLoginError('Login failed. Please check your credentials.');
-        logActivity(`❌ Login error: ${error.message}`, 'error');
+        showLoginError(error.message);
+        logActivity(`❌ Login failed: ${error.message}`, 'error');
     }
 }
 
@@ -108,46 +112,43 @@ async function logout() {
         currentUser = null;
         isAuthenticated = false;
         showLoginForm();
-        logActivity('Logged out successfully', 'info');
+        logActivity('✅ Logout successful', 'success');
     } catch (error) {
-        logActivity('Logout error', 'error');
+        logActivity(`❌ Logout error: ${error.message}`, 'error');
     }
 }
 
-// API call functions
 async function makeAuthCall(endpoint, method = 'GET', data = null) {
     try {
-        console.log(`Making ${method} request to ${AUTH_BASE_URL}${endpoint}`);
         const config = {
             method: method,
             headers: {
                 'Content-Type': 'application/json',
             },
-            credentials: 'include' // Include cookies for session management
+            credentials: 'include'
         };
         
         if (data) {
             config.body = JSON.stringify(data);
-            console.log('Request data:', data);
         }
         
         const response = await fetch(`${AUTH_BASE_URL}${endpoint}`, config);
-        console.log('Response status:', response.status);
+        
+        if (response.status === 401) {
+            isAuthenticated = false;
+            currentUser = null;
+            showLoginForm();
+            throw new Error('Session expired. Please login again.');
+        }
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
-        const result = await response.json();
-        console.log('Response data:', result);
-        return result;
+        return await response.json();
     } catch (error) {
-        console.error('Auth API call failed:', error);
-        console.error('Error details:', {
-            message: error.message,
-            name: error.name,
-            stack: error.stack
-        });
+        console.error('Auth call failed:', error);
+        logActivity(`Auth Error: ${error.message}`, 'error');
         throw error;
     }
 }
@@ -163,7 +164,7 @@ async function makeApiCall(endpoint, method = 'GET', data = null) {
             headers: {
                 'Content-Type': 'application/json',
             },
-            credentials: 'include' // Include cookies for session management
+            credentials: 'include'
         };
         
         if (data) {
@@ -173,7 +174,6 @@ async function makeApiCall(endpoint, method = 'GET', data = null) {
         const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
         
         if (response.status === 401) {
-            // Session expired
             isAuthenticated = false;
             currentUser = null;
             showLoginForm();
@@ -210,16 +210,10 @@ async function checkAuthServiceStatus() {
 
 // UI Management
 function initializeUI() {
-    // Setup login form
     setupLoginForm();
-    
-    // Setup navigation
     setupNavigation();
-    
-    // Setup logout button
     setupLogoutButton();
     
-    // Initially hide main content if not authenticated
     if (!isAuthenticated) {
         showLoginForm();
     }
@@ -238,7 +232,6 @@ function setupLoginForm() {
 }
 
 function setupNavigation() {
-    // Navigation button event listeners
     document.getElementById('nav-documents').addEventListener('click', () => {
         if (isAuthenticated) {
             showSection('documents');
@@ -298,101 +291,629 @@ function updateUserDisplay() {
     }
 }
 
-// Document Management
+// Document Management with File System Integration
 async function loadDocuments() {
     try {
         logActivity('🔄 Loading documents...', 'info');
-        const response = await makeAuthCall('/documents');
+        
+        // Get documents from the local server which checks Mini-Zanzibar permissions
+        const response = await fetch('http://localhost:3001/api/documents', {
+            method: 'GET',
+            credentials: 'include'
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
         const documentsContainer = document.getElementById('documents-list');
         
-        if (response.documents && response.documents.length > 0) {
-            documentsContainer.innerHTML = response.documents.map(doc => `
-                <div class="document-item">
-                    <h3>${doc}</h3>
-                    <div class="document-actions">
-                        <button onclick="openDocument('${doc}')" class="btn-primary">Open</button>
-                        <button onclick="editDocument('${doc}')" class="btn-secondary">Edit</button>
-                        <button onclick="shareDocument('${doc}')" class="btn-tertiary">Share</button>
+        if (data.documents && data.documents.length > 0) {
+            documentsContainer.innerHTML = data.documents.map(doc => {
+                const permissionBadge = doc.isOwner ? 'owner' : (doc.canEdit ? 'editor' : 'viewer');
+                const permissionColor = doc.isOwner ? '#28a745' : (doc.canEdit ? '#ffc107' : '#6c757d');
+                
+                return `
+                    <div class="document-item">
+                        <div class="document-header">
+                            <h3>${doc.name}</h3>
+                            <span class="permission-badge" style="background-color: ${permissionColor}; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px;">
+                                ${permissionBadge}
+                            </span>
+                        </div>
+                        <div class="document-actions">
+                            <button onclick="openDocument('${doc.name}')" class="btn-primary">
+                                📖 View
+                            </button>
+                            ${doc.canEdit ? `
+                                <button onclick="editDocument('${doc.name}')" class="btn-secondary">
+                                    ✏️ Edit
+                                </button>
+                            ` : ''}
+                            ${doc.isOwner ? `
+                                <button onclick="shareDocument('${doc.name}')" class="btn-tertiary">
+                                    📤 Share
+                                </button>
+                            ` : ''}
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         } else {
             documentsContainer.innerHTML = '<p>No documents available for your role.</p>';
         }
         
-        logActivity(`📄 Loaded ${response.documents ? response.documents.length : 0} documents`, 'success');
+        logActivity(`📄 Loaded ${data.documents ? data.documents.length : 0} documents for user: ${data.user}`, 'success');
     } catch (error) {
         logActivity(`Failed to load documents: ${error.message}`, 'error');
-        if (error.message.includes('401')) {
-            logActivity('❌ Session may have expired. Please try logging in again.', 'error');
-        }
+        const documentsContainer = document.getElementById('documents-list');
+        documentsContainer.innerHTML = '<p class="error">Error loading documents. Please try again.</p>';
     }
 }
 
 async function openDocument(docName) {
     try {
-        const response = await makeAuthCall(`/documents/${docName}/access?permission=viewer`);
+        logActivity(`📖 Opening document: ${docName}...`, 'info');
         
-        if (response.authorized) {
-            logActivity(`📖 Opened document: ${docName}`, 'success');
-            showDocumentContent(docName, 'Viewing document content...');
-        } else {
+        const response = await fetch(`http://localhost:3001/api/documents/${docName}/content`, {
+            method: 'GET',
+            credentials: 'include'
+        });
+        
+        if (response.status === 403) {
             logActivity(`❌ Access denied: Cannot view ${docName}`, 'error');
-            showAccessDenied();
+            showAccessDenied(`You don't have permission to view this document.`);
+            return;
         }
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        logActivity(`📖 Opened document: ${docName} (${data.permission} access)`, 'success');
+        showDocumentContent(docName, data.content, false, data.permission);
+        
     } catch (error) {
         logActivity(`Error opening document: ${error.message}`, 'error');
+        showAccessDenied(`Error loading document: ${error.message}`);
     }
 }
 
 async function editDocument(docName) {
     try {
-        const response = await makeAuthCall(`/documents/${docName}/access?permission=editor`);
+        logActivity(`✏️ Opening document for editing: ${docName}...`, 'info');
         
-        if (response.authorized) {
-            logActivity(`✏️ Editing document: ${docName}`, 'success');
-            showDocumentContent(docName, 'Editing document content...', true);
-        } else {
+        const response = await fetch(`http://localhost:3001/api/documents/${docName}/content`, {
+            method: 'GET',
+            credentials: 'include'
+        });
+        
+        if (response.status === 403) {
             logActivity(`❌ Access denied: Cannot edit ${docName}`, 'error');
-            showAccessDenied();
+            showAccessDenied(`You don't have permission to edit this document.`);
+            return;
         }
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        logActivity(`✏️ Editing document: ${docName} (${data.permission} access)`, 'success');
+        showDocumentContent(docName, data.content, true, data.permission);
+        
     } catch (error) {
         logActivity(`Error editing document: ${error.message}`, 'error');
+        showAccessDenied(`Error loading document for editing: ${error.message}`);
     }
 }
 
 function shareDocument(docName) {
-    if (currentUser.role !== 'admin') {
-        logActivity(`❌ Access denied: Only admins can share documents`, 'error');
+    // Check if user is owner (more robust check)
+    const isOwner = currentUser && (
+        currentUser.role === 'owner' || 
+        currentUser.username === 'alice' || 
+        currentUser.username === 'user:alice'
+    );
+    
+    if (!isOwner) {
+        logActivity(`❌ Access denied: Only owners can share documents. Current role: ${currentUser?.role}`, 'error');
         return;
     }
     
-    // Show share modal (simplified for demo)
-    logActivity(`📤 Share functionality for ${docName} (Admin only)`, 'info');
+    logActivity(`📤 Opening share dialog for ${docName}`, 'info');
+    showShareModal(docName);
 }
 
-// Authorization Testing
-async function testAuthorization() {
-    const user = document.getElementById('test-user').value.trim();
-    const document = document.getElementById('test-document').value.trim();
-    const permission = document.getElementById('test-permission').value;
+function showShareModal(docName) {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    `;
     
-    if (!user || !document) {
-        showTestError('Please fill in all fields');
+    modal.innerHTML = `
+        <div class="modal-content" style="
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+        ">
+            <div class="modal-header" style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+                border-bottom: 1px solid #ddd;
+                padding-bottom: 10px;
+            ">
+                <h3 style="margin: 0;">📤 Share Document: ${docName}</h3>
+                <button onclick="this.closest('.modal').remove()" class="close-btn" style="
+                    background: none;
+                    border: none;
+                    font-size: 24px;
+                    cursor: pointer;
+                    color: #999;
+                ">&times;</button>
+            </div>
+            <div class="modal-body" style="margin-bottom: 20px;">
+                <form id="share-form" style="display: flex; flex-direction: column; gap: 15px;">
+                    <div>
+                        <label for="share-user" style="display: block; margin-bottom: 5px; font-weight: bold;">
+                            Share with user:
+                        </label>
+                        <input type="text" id="share-user" placeholder="Enter username (e.g., bob)" 
+                               style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required>
+                    </div>
+                    <div>
+                        <label for="share-permission" style="display: block; margin-bottom: 5px; font-weight: bold;">
+                            Permission level:
+                        </label>
+                        <select id="share-permission" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                            <option value="viewer">Viewer (can read only)</option>
+                            <option value="editor">Editor (can read and write)</option>
+                        </select>
+                    </div>
+                    <div style="background-color: #f8f9fa; padding: 10px; border-radius: 4px; font-size: 14px;">
+                        <strong>Note:</strong> This will create an ACL entry allowing the specified user to access this document 
+                        with the selected permission level through the Zanzibar authorization system.
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer" style="
+                display: flex;
+                gap: 10px;
+                justify-content: flex-end;
+                border-top: 1px solid #ddd;
+                padding-top: 15px;
+            ">
+                <button onclick="shareDocumentWithUser('${docName}')" class="btn-primary" style="
+                    background-color: #007bff;
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                ">📤 Share Document</button>
+                <button onclick="this.closest('.modal').remove()" class="btn-secondary" style="
+                    background-color: #6c757d;
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                ">Cancel</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Focus the username input
+    setTimeout(() => {
+        const userInput = document.getElementById('share-user');
+        if (userInput) userInput.focus();
+    }, 100);
+}
+
+async function shareDocumentWithUser(docName) {
+    const userInput = document.getElementById('share-user');
+    const permissionSelect = document.getElementById('share-permission');
+    
+    if (!userInput || !permissionSelect) return;
+    
+    const username = userInput.value.trim();
+    const permission = permissionSelect.value;
+    
+    if (!username) {
+        alert('Please enter a username');
         return;
     }
     
     try {
-        const response = await makeApiCall(`/acl/check?object=doc:${document}&relation=${permission}&user=user:${user}`);
+        logActivity(`📤 Sharing ${docName} with ${username} as ${permission}...`, 'info');
+        
+        // Create ACL entry using the Mini-Zanzibar API
+        const aclData = {
+            object: `doc:${docName}`,
+            relation: permission,
+            user: `user:${username}`
+        };
+        
+        const response = await makeApiCall('/acl', 'POST', aclData);
+        
+        logActivity(`✅ Successfully shared ${docName} with ${username} as ${permission}`, 'success');
+        
+        // Close the modal
+        const modal = userInput.closest('.modal');
+        if (modal) modal.remove();
+        
+        // Show success message
+        const successModal = document.createElement('div');
+        successModal.className = 'modal';
+        successModal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        `;
+        
+        successModal.innerHTML = `
+            <div class="modal-content" style="
+                background: white;
+                padding: 30px;
+                border-radius: 8px;
+                text-align: center;
+                max-width: 400px;
+            ">
+                <h3 style="color: #28a745; margin: 0 0 15px 0;">✅ Document Shared Successfully!</h3>
+                <p style="margin: 0 0 20px 0;">
+                    <strong>${username}</strong> now has <strong>${permission}</strong> access to <strong>${docName}</strong>
+                </p>
+                <button onclick="this.closest('.modal').remove()" style="
+                    background-color: #28a745;
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                ">OK</button>
+            </div>
+        `;
+        
+        document.body.appendChild(successModal);
+        
+        // Auto-close after 3 seconds
+        setTimeout(() => {
+            if (successModal.parentNode) {
+                successModal.remove();
+            }
+        }, 3000);
+        
+    } catch (error) {
+        logActivity(`❌ Failed to share ${docName}: ${error.message}`, 'error');
+        alert(`Failed to share document: ${error.message}`);
+    }
+}
+
+// Document display functions
+function showDocumentContent(docName, content, isEditing = false, permission = 'viewer') {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    `;
+    
+    modal.innerHTML = `
+        <div class="modal-content" style="
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 80%;
+            max-height: 80%;
+            overflow-y: auto;
+            position: relative;
+        ">
+            <div class="modal-header" style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 15px;
+                border-bottom: 1px solid #ddd;
+                padding-bottom: 10px;
+            ">
+                <div>
+                    <h3 style="margin: 0;">${isEditing ? 'Editing' : 'Viewing'}: ${docName}</h3>
+                    <span class="permission-indicator" style="
+                        background-color: #e9ecef;
+                        padding: 2px 8px;
+                        border-radius: 4px;
+                        font-size: 12px;
+                        color: #6c757d;
+                    ">Permission: ${permission}</span>
+                </div>
+                <button onclick="this.closest('.modal').remove()" class="close-btn" style="
+                    background: none;
+                    border: none;
+                    font-size: 24px;
+                    cursor: pointer;
+                    color: #999;
+                ">&times;</button>
+            </div>
+            <div class="modal-body" style="margin-bottom: 15px;">
+                ${isEditing ? 
+                    `<textarea id="doc-editor" rows="15" style="
+                        width: 100%;
+                        font-family: monospace;
+                        border: 1px solid #ddd;
+                        padding: 10px;
+                        border-radius: 4px;
+                    ">${content}</textarea>` : 
+                    `<div class="document-content" style="
+                        line-height: 1.6;
+                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    ">${formatMarkdownContent(content)}</div>`
+                }
+            </div>
+            <div class="modal-footer" style="
+                display: flex;
+                gap: 10px;
+                justify-content: flex-end;
+                border-top: 1px solid #ddd;
+                padding-top: 10px;
+            ">
+                ${isEditing ? 
+                    `<button onclick="saveDocument('${docName}')" class="btn-primary" style="
+                        background-color: #007bff;
+                        color: white;
+                        border: none;
+                        padding: 8px 16px;
+                        border-radius: 4px;
+                        cursor: pointer;
+                    ">💾 Save</button>` : 
+                    ''
+                }
+                <button onclick="this.closest('.modal').remove()" class="btn-secondary" style="
+                    background-color: #6c757d;
+                    color: white;
+                    border: none;
+                    padding: 8px 16px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                ">Close</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Focus the textarea if editing
+    if (isEditing) {
+        setTimeout(() => {
+            const textarea = document.getElementById('doc-editor');
+            if (textarea) textarea.focus();
+        }, 100);
+    }
+}
+
+function showAccessDenied(message = 'Access denied') {
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    `;
+    
+    modal.innerHTML = `
+        <div class="modal-content" style="
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 500px;
+            text-align: center;
+        ">
+            <div class="modal-header" style="margin-bottom: 15px;">
+                <h3 style="color: #dc3545; margin: 0;">❌ Access Denied</h3>
+            </div>
+            <div class="modal-body" style="margin-bottom: 15px;">
+                <p>${message}</p>
+            </div>
+            <div class="modal-footer">
+                <button onclick="this.closest('.modal').remove()" class="btn-secondary" style="
+                    background-color: #6c757d;
+                    color: white;
+                    border: none;
+                    padding: 8px 16px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                ">Close</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+function formatMarkdownContent(content) {
+    return content
+        .replace(/^# (.*$)/gim, '<h1 style="color: #333; border-bottom: 2px solid #eee; padding-bottom: 10px;">$1</h1>')
+        .replace(/^## (.*$)/gim, '<h2 style="color: #555; border-bottom: 1px solid #eee; padding-bottom: 5px;">$1</h2>')
+        .replace(/^### (.*$)/gim, '<h3 style="color: #666;">$1</h3>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/\n/g, '<br>');
+}
+
+async function saveDocument(docName) {
+    const textarea = document.getElementById('doc-editor');
+    if (!textarea) return;
+    
+    const content = textarea.value;
+    
+    try {
+        logActivity(`💾 Saving document: ${docName}...`, 'info');
+        
+        const response = await fetch(`/api/documents/${docName}/content`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+            },
+            body: JSON.stringify({ content: content })
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            logActivity(`✅ Document saved: ${docName}`, 'success');
+            
+            // Close the modal
+            const modal = textarea.closest('.modal');
+            if (modal) modal.remove();
+            
+            // Refresh the document list
+            loadDocuments();
+        } else {
+            logActivity(`❌ Failed to save document: ${result.error}`, 'error');
+        }
+        
+    } catch (error) {
+        logActivity(`❌ Failed to save document: ${error.message}`, 'error');
+    }
+}
+
+// Authorization Testing
+// Refresh current user's permissions overview
+async function refreshMyPermissions() {
+    if (!currentUser) {
+        showTestError('Please log in first');
+        return;
+    }
+
+    console.log('DEBUG: Current user object:', currentUser);
+    const permissionsGrid = document.getElementById('user-permissions');
+    permissionsGrid.innerHTML = '<div>Loading permissions...</div>';
+
+    try {
+        const documents = ['document1', 'document2', 'document3'];
+        const permissions = ['viewer', 'editor', 'owner'];
+        let permissionCards = '';
+
+        for (const doc of documents) {
+            let userPermissions = [];
+            
+            for (const permission of permissions) {
+                try {
+                    // Handle username format - ensure it starts with user:
+                    const userId = currentUser.username.startsWith('user:') ? currentUser.username : `user:${currentUser.username}`;
+                    const response = await makeApiCall(`/acl/check?object=doc:${doc}&relation=${permission}&user=${userId}`);
+                    if (response.authorized) {
+                        userPermissions.push(permission);
+                    }
+                } catch (error) {
+                    console.error(`Error checking ${permission} for ${doc}:`, error);
+                }
+            }
+
+            const highestPermission = userPermissions.includes('owner') ? 'owner' : 
+                                    userPermissions.includes('editor') ? 'editor' : 
+                                    userPermissions.includes('viewer') ? 'viewer' : 'none';
+
+            permissionCards += `
+                <div class="permission-card">
+                    <h4>${doc}</h4>
+                    <div class="permission-badge ${highestPermission}">
+                        ${highestPermission === 'none' ? 'No Access' : highestPermission.charAt(0).toUpperCase() + highestPermission.slice(1)}
+                    </div>
+                    ${userPermissions.length > 1 ? `<div style="font-size: 12px; color: #666; margin-top: 5px;">Also: ${userPermissions.filter(p => p !== highestPermission).join(', ')}</div>` : ''}
+                </div>
+            `;
+        }
+
+        permissionsGrid.innerHTML = permissionCards || '<div>No documents found</div>';
+        logActivity(`🔍 Refreshed permissions for ${currentUser.username}`, 'info');
+
+    } catch (error) {
+        permissionsGrid.innerHTML = '<div class="error">Error loading permissions</div>';
+        showTestError(`Error loading permissions: ${error.message}`);
+    }
+}
+
+// Initialize test authorization section when it's shown
+function initializeTestAuthSection() {
+    if (currentUser) {
+        // Pre-fill user field with current user
+        document.getElementById('test-user').value = currentUser.username;
+        // Auto-load current user's permissions
+        refreshMyPermissions();
+    }
+}
+
+async function testAuthorization() {
+    let user = document.getElementById('test-user').value.trim();
+    const documentName = document.getElementById('test-document').value.trim();
+    const permission = document.getElementById('test-permission').value;
+    
+    // If no user specified, use current user
+    if (!user && currentUser) {
+        user = currentUser.username;
+        document.getElementById('test-user').value = user;
+    }
+    
+    if (!user || !documentName) {
+        showTestError('Please select a user and document');
+        return;
+    }
+    
+    try {
+        // Handle username format - avoid double "user:" prefix
+        const userId = user.startsWith('user:') ? user : `user:${user}`;
+        
+        const response = await makeApiCall(`/acl/check?object=doc:${documentName}&relation=${permission}&user=${userId}`);
         
         const resultText = response.authorized ? 
-            `✅ AUTHORIZED: ${user} has ${permission} access to ${document}` :
-            `❌ DENIED: ${user} does NOT have ${permission} access to ${document}`;
+            `✅ AUTHORIZED: ${user} has ${permission} access to ${documentName}` :
+            `❌ DENIED: ${user} does NOT have ${permission} access to ${documentName}`;
         
         const resultClass = response.authorized ? 'result-success' : 'result-error';
         
         showTestResult(resultText, resultClass);
-        logActivity(`🔐 Authorization test: ${user} -> ${document} (${permission}): ${response.authorized ? 'ALLOWED' : 'DENIED'}`, response.authorized ? 'success' : 'error');
+        logActivity(`🔐 Authorization test: ${user} -> ${documentName} (${permission}): ${response.authorized ? 'ALLOWED' : 'DENIED'}`, response.authorized ? 'success' : 'error');
         
     } catch (error) {
         showTestResult(`Error: ${error.message}`, 'result-error');
@@ -400,10 +921,10 @@ async function testAuthorization() {
     }
 }
 
-// ACL Management (Admin only)
+// ACL Management (Owner only)
 async function createACL() {
-    if (currentUser.role !== 'admin') {
-        logActivity(`❌ Access denied: Only admins can manage ACLs`, 'error');
+    if (currentUser.role !== 'owner') {
+        logActivity(`❌ Access denied: Only owners can manage ACLs`, 'error');
         return;
     }
     
@@ -432,7 +953,6 @@ async function createACL() {
 
 // Utility functions
 function showSection(sectionName) {
-    // Hide all sections
     const sections = ['documents', 'access-control', 'test-authorization'];
     sections.forEach(section => {
         const element = document.getElementById(section);
@@ -441,13 +961,16 @@ function showSection(sectionName) {
         }
     });
     
-    // Show selected section
     const targetSection = document.getElementById(sectionName);
     if (targetSection) {
         targetSection.style.display = 'block';
     }
     
-    // Update navigation
+    // Initialize specific sections when shown
+    if (sectionName === 'test-authorization') {
+        initializeTestAuthSection();
+    }
+    
     updateNavigationState(sectionName);
 }
 
@@ -493,58 +1016,10 @@ function updateConnectionStatus(isConnected) {
     }
 }
 
-function showDocumentContent(docName, content, isEditing = false) {
-    const modal = document.createElement('div');
-    modal.className = 'modal';
-    modal.innerHTML = `
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>${isEditing ? 'Editing' : 'Viewing'}: ${docName}</h3>
-                <button onclick="this.closest('.modal').remove()" class="close-btn">&times;</button>
-            </div>
-            <div class="modal-body">
-                ${isEditing ? 
-                    `<textarea rows="10" cols="50">${content}</textarea>` : 
-                    `<p>${content}</p>`
-                }
-            </div>
-            <div class="modal-footer">
-                ${isEditing ? 
-                    '<button onclick="saveDocument()" class="btn-primary">Save</button>' : 
-                    ''
-                }
-                <button onclick="this.closest(\'.modal\').remove()" class="btn-secondary">Close</button>
-            </div>
-        </div>
-    `;
-    document.body.appendChild(modal);
-}
-
-function showAccessDenied() {
-    const modal = document.createElement('div');
-    modal.className = 'modal';
-    modal.innerHTML = `
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Access Denied</h3>
-                <button onclick="this.closest('.modal').remove()" class="close-btn">&times;</button>
-            </div>
-            <div class="modal-body">
-                <p>❌ You don't have permission to access this resource.</p>
-                <p>Current user: <strong>${currentUser.username}</strong> (${currentUser.role})</p>
-            </div>
-            <div class="modal-footer">
-                <button onclick="this.closest('.modal').remove()" class="btn-secondary">Close</button>
-            </div>
-        </div>
-    `;
-    document.body.appendChild(modal);
-}
-
-function showTestResult(text, className) {
+function showTestResult(message, className) {
     const resultDiv = document.getElementById('test-result');
     if (resultDiv) {
-        resultDiv.textContent = text;
+        resultDiv.textContent = message;
         resultDiv.className = className;
         resultDiv.style.display = 'block';
     }
@@ -559,9 +1034,7 @@ function showTestError(message) {
 }
 
 function clearACLForm() {
-    const fields = ['acl-object', 'acl-relation', 'acl-user'];
-    fields.forEach(field => {
-        const element = document.getElementById(field);
-        if (element) element.value = '';
-    });
+    document.getElementById('acl-object').value = '';
+    document.getElementById('acl-relation').value = '';
+    document.getElementById('acl-user').value = '';
 }

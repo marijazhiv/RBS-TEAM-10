@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DocuManager - Mini-Zanzibar with Auth</title>
-    <link rel="stylesheet" href="styles-new.css">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
@@ -33,7 +33,7 @@
                     <div class="user-cards">
                         <div class="user-card">
                             <strong>alice</strong> / alice123<br>
-                            <small>Role: Admin (Full Access)</small>
+                            <small>Role: Owner (Full Access)</small>
                         </div>
                         <div class="user-card">
                             <strong>bob</strong> / bob123<br>
@@ -84,7 +84,7 @@
             <!-- Access Control Section -->
             <section id="access-control" class="content-section" style="display: none;">
                 <h2>Access Control Management</h2>
-                <p><em>Admin only section</em></p>
+                <p><em>Owner only section</em></p>
                 
                 <div class="acl-form">
                     <h3>Create ACL Rule</h3>
@@ -112,14 +112,32 @@
             <section id="test-authorization" class="content-section" style="display: none;">
                 <h2>Test Authorization</h2>
                 
+                <!-- Current User Permissions Overview -->
+                <div class="permissions-overview">
+                    <h3>My Current Permissions</h3>
+                    <div id="user-permissions" class="permissions-grid">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                    <button onclick="refreshMyPermissions()" class="btn-secondary">Refresh My Permissions</button>
+                </div>
+
+                <hr style="margin: 20px 0;">
+                
+                <!-- Manual Authorization Test -->
                 <div class="test-form">
+                    <h3>Test Specific Authorization</h3>
                     <div class="form-group">
                         <label for="test-user">User:</label>
-                        <input type="text" id="test-user" placeholder="e.g., alice">
+                        <input type="text" id="test-user" placeholder="Current user will be auto-filled">
                     </div>
                     <div class="form-group">
                         <label for="test-document">Document:</label>
-                        <input type="text" id="test-document" placeholder="e.g., report1">
+                        <select id="test-document">
+                            <option value="">Select a document...</option>
+                            <option value="document1">document1</option>
+                            <option value="document2">document2</option>
+                            <option value="document3">document3</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="test-permission">Permission:</label>
@@ -146,6 +164,6 @@
         </div>
     </div>
 
-    <script src="app-new.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
