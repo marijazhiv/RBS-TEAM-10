@@ -8,9 +8,36 @@ import (
 	"mini-zanzibar/internal/database/leveldb"
 	"mini-zanzibar/internal/database/redis"
 	"mini-zanzibar/internal/utils"
+	"os"
+	"path/filepath"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	// Get the absolute path to the project root
+	projectRoot, err := filepath.Abs("../..")
+	if err != nil {
+		panic(err)
+	}
+
+	// Load .env.example file from project root
+	envPath := filepath.Join(projectRoot, ".env.example")
+	if err := godotenv.Load(envPath); err != nil {
+		// If .env.example file doesn't exist, try .env as fallback
+		envPath = filepath.Join(projectRoot, ".env")
+		if err2 := godotenv.Load(envPath); err2 != nil {
+			println("No .env file found, using system environment variables")
+		}
+	}
+
+	// Override KEYS_FILE_PATH with absolute path
+	keysPath := filepath.Join(projectRoot, "internal", "config", "api-keys.json")
+	os.Setenv("KEYS_FILE_PATH", keysPath)
+
+	// Debug: Check paths
+	println("Project root:", projectRoot)
+	println("KEYS_FILE_PATH:", keysPath)
 	// Load configuration
 	cfg, err := config.Load()
 	if err != nil {
