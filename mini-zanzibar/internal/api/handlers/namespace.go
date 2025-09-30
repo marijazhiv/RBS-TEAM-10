@@ -32,6 +32,10 @@ func (h *NamespaceHandler) CreateNamespace(c *gin.Context) {
 	}
 
 	// TODO: Validate namespace configuration
+	// if err := h.validateNamespaceConfig(req); err != nil {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	// 	return
+	// }
 	// TODO: Check for circular dependencies in relations
 	// TODO: Implement authorization check for namespace management
 

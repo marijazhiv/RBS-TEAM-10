@@ -1,0 +1,16 @@
+{
+  "clients": {
+    "web-app": {
+      "apiKey": "web-secret-key-456"
+    },
+    "mobile-app": {
+      "apiKey": "mobile-secret-key-123"
+    },
+    "admin-service": {
+      "apiKey": "admin-secret-key-789"
+    },
+    "test-client": {
+      "apiKey": "test-key-abc123"
+    }
+  }
+}

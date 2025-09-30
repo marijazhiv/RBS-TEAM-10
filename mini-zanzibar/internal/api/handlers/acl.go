@@ -33,12 +33,23 @@ func NewACLHandler(leveldbClient *leveldb.Client, consulClient *consul.Client, r
 }
 
 // CreateACL handles POST /acl - Create or update an ACL tuple
+// CreateACL handles POST /acl - Create or update an ACL tuple
 func (h *ACLHandler) CreateACL(c *gin.Context) {
 	var req models.ACLRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	// Debug: Log all context keys
+	contextKeys := make([]string, 0)
+	for key := range c.Keys {
+		contextKeys = append(contextKeys, key)
+	}
+	h.logger.Debugw("Context keys in ACL handler",
+		"keys", contextKeys,
+		"client_name", c.GetString("client_name"),
+		"user", c.GetString("user"))
 
 	// Validate request format (object:type, user:username, etc.)
 	if err := h.validateACLRequest(req); err != nil {
@@ -49,10 +60,12 @@ func (h *ACLHandler) CreateACL(c *gin.Context) {
 	// Check if namespace exists and relation is valid
 	if err := h.validateNamespaceAndRelation(req.Object, req.Relation); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return // ← ADD THIS RETURN STATEMENT (was missing)
 	}
+
 	// Implement authorization check for ACL management
 	if !h.isAuthorizedForACLManagement(c, req.Object) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Unauthorized to manage ACLs for this object"})
+		c.JSON(http.StatusForbidden, gin.H{"error": "Unauthorized to manage ACLs for this object"}) // ← Changed from 400 to 403
 		return
 	}
 

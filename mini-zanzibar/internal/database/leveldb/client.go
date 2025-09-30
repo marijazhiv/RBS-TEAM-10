@@ -124,7 +124,7 @@ func (c *Client) ListTuplesByObject(object string) ([]ACLTuple, error) {
 
 // ListTuplesByUser returns all tuples for a specific user (USING REVERSE INDEX)
 func (c *Client) ListTuplesByUser(user string) ([]ACLTuple, error) {
-	// TODO: Implement efficient user-based querying
+	// Implement efficient user-based querying
 	// For now, we'll scan all keys and filter by user
 	// iter := c.db.NewIterator(nil, nil)
 	// defer iter.Release()
