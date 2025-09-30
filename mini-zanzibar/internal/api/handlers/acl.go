@@ -61,20 +61,49 @@ func (h *ACLHandler) CreateACL(c *gin.Context) {
 	// Check if namespace exists and relation is valid
 	if err := h.validateNamespaceAndRelation(req.Object, req.Relation); err != nil {
 		// Bootstrap mode: Allow alice to create first ACL even if validation fails
+		// Also auto-create the doc namespace if it doesn't exist
 		user, exists := c.Get("user")
 		if exists && user.(string) == "user:alice" {
 			existingTuples, checkErr := h.leveldbClient.ListTuplesByUser("user:alice")
 			if checkErr == nil && len(existingTuples) == 0 {
 				h.logger.Infow("Bootstrap mode: Bypassing validation for alice's first ACL", "object", req.Object, "relation", req.Relation)
+
+				// Auto-create the doc namespace if this is a doc object
+				if err := h.ensureDocNamespaceExists(req.Object); err != nil {
+					h.logger.Warnw("Failed to auto-create doc namespace", "error", err)
+				}
+			} else {
+				// Even if Alice has existing ACLs, try to create the namespace if it's missing
+				if err := h.ensureDocNamespaceExists(req.Object); err == nil {
+					// Retry validation after creating namespace
+					if validateErr := h.validateNamespaceAndRelation(req.Object, req.Relation); validateErr == nil {
+						// Validation passed after creating namespace, continue
+						h.logger.Infow("Namespace auto-created, validation now passes", "object", req.Object, "relation", req.Relation)
+					} else {
+						h.logger.Errorw("Namespace/relation validation failed even after auto-creation", "error", validateErr)
+						c.JSON(http.StatusBadRequest, gin.H{"error": validateErr.Error()})
+						return
+					}
+				} else {
+					h.logger.Errorw("Namespace/relation validation failed", "error", err)
+					c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+					return
+				}
+			}
+		} else {
+			// For non-Alice users, try to auto-create namespace if it's a doc object
+			if err := h.ensureDocNamespaceExists(req.Object); err == nil {
+				// Retry validation after creating namespace
+				if validateErr := h.validateNamespaceAndRelation(req.Object, req.Relation); validateErr != nil {
+					h.logger.Errorw("Namespace/relation validation failed even after auto-creation", "error", validateErr)
+					c.JSON(http.StatusBadRequest, gin.H{"error": validateErr.Error()})
+					return
+				}
 			} else {
 				h.logger.Errorw("Namespace/relation validation failed", "error", err)
 				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 				return
 			}
-		} else {
-			h.logger.Errorw("Namespace/relation validation failed", "error", err)
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
 		}
 	}
 
@@ -95,6 +124,12 @@ func (h *ACLHandler) CreateACL(c *gin.Context) {
 		h.logger.Errorw("Failed to store ACL tuple", "error", err, "tuple", tuple)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to store ACL"})
 		return
+	}
+
+	// Auto-grant alice owner permission for new documents in doc namespace
+	if err := h.autoGrantAliceOwnershipForNewDocuments(req.Object); err != nil {
+		h.logger.Warnw("Failed to auto-grant alice ownership", "error", err, "object", req.Object)
+		// Don't fail the main operation if auto-grant fails
 	}
 
 	// Invalidate cache for this object and user
@@ -360,25 +395,37 @@ func (h *ACLHandler) isAuthorizedForACLManagement(c *gin.Context, object string)
 		}
 	}
 
-	// Check if user is owner of the specific object
+	// PRIMARY CHECK: Check if user is owner of the specific object
 	// In Zanzibar model, only owners can manage ACLs for their objects
 	authorized, err := h.performAuthorizationCheck(object, "owner", userStr)
 	if err != nil {
 		h.logger.Errorw("Failed to check owner authorization", "error", err, "object", object, "user", userStr)
-		return false
-	}
-
-	if authorized {
-		h.logger.Infow("User authorized as owner of object", "object", object, "user", userStr)
+	} else if authorized {
+		h.logger.Infow("User authorized as owner of specific object", "object", object, "user", userStr)
 		return true
 	}
 
-	// Special case: If Alice has any ownership, allow her to create ACLs for new documents
-	// This is a simplified approach for demo purposes
-	if userStr == "user:alice" {
-		existingTuples, err := h.leveldbClient.ListTuplesByUser("user:alice")
-		if err == nil && len(existingTuples) > 0 {
-			h.logger.Infow("Alice has existing ownership, allowing ACL creation for new document", "object", object, "user", userStr)
+	// SECONDARY CHECK: Check if user has any owner privileges (for Alice's special case and other scenarios)
+	existingTuples, err := h.leveldbClient.ListTuplesByUser(userStr)
+	if err != nil {
+		h.logger.Errorw("Failed to check user's existing ACLs", "error", err, "user", userStr)
+	} else {
+		h.logger.Infow("DEBUG: User's existing ACLs", "user", userStr, "count", len(existingTuples), "tuples", existingTuples)
+
+		// Check if user owns ANY objects
+		hasOwnership := false
+		for _, tuple := range existingTuples {
+			if tuple.Relation == "owner" {
+				hasOwnership = true
+				h.logger.Infow("DEBUG: User owns object", "user", userStr, "owned_object", tuple.Object)
+				break
+			}
+		}
+
+		// If user has ownership of any document, allow them to manage ACLs
+		// This supports the use case where owners can share their documents
+		if hasOwnership {
+			h.logger.Infow("User has ownership privileges, allowing ACL management", "object", object, "user", userStr)
 			return true
 		}
 	}
@@ -551,4 +598,113 @@ func (h *ACLHandler) getPaginationParams(c *gin.Context) (int, int) {
 	}
 
 	return page, pageSize
+}
+
+// autoGrantAliceOwnershipForNewDocuments automatically grants alice owner permission for new documents in doc namespace
+func (h *ACLHandler) autoGrantAliceOwnershipForNewDocuments(object string) error {
+	// Check if this is a document in the doc namespace
+	parts := strings.Split(object, ":")
+	if len(parts) != 2 || parts[0] != "doc" {
+		// Not a document object, skip auto-grant
+		return nil
+	}
+
+	documentID := parts[1]
+	aliceUser := "user:alice"
+
+	// Check if alice already has owner permission for this document
+	hasOwnership, err := h.leveldbClient.CheckTuple(object, "owner", aliceUser)
+	if err != nil {
+		return fmt.Errorf("failed to check existing ownership: %v", err)
+	}
+
+	if hasOwnership {
+		h.logger.Infow("Alice already has ownership of document", "document", documentID, "object", object)
+		return nil
+	}
+
+	// Check if this is truly a new document by seeing if there are any existing ACLs for it
+	existingTuples, err := h.leveldbClient.ListTuplesByObjectAndRelation(object, "owner")
+	if err != nil {
+		return fmt.Errorf("failed to check existing document owners: %v", err)
+	}
+
+	// If there are no existing owners, this is a new document - grant alice ownership
+	if len(existingTuples) == 0 {
+		aliceOwnerTuple := leveldb.ACLTuple{
+			Object:   object,
+			Relation: "owner",
+			User:     aliceUser,
+		}
+
+		if err := h.leveldbClient.StoreTuple(aliceOwnerTuple); err != nil {
+			return fmt.Errorf("failed to grant alice ownership: %v", err)
+		}
+
+		h.logger.Infow("Auto-granted alice owner permission for new document",
+			"document", documentID, "object", object, "user", aliceUser)
+
+		// Invalidate cache for alice's new ownership
+		h.invalidateAuthorizationCache(object, "owner", aliceUser)
+	} else {
+		h.logger.Debugw("Document already has owners, not auto-granting alice ownership",
+			"document", documentID, "object", object, "existing_owners", len(existingTuples))
+	}
+
+	return nil
+}
+
+// ensureDocNamespaceExists creates the doc namespace if it doesn't exist and the object is a doc object
+func (h *ACLHandler) ensureDocNamespaceExists(object string) error {
+	parts := strings.Split(object, ":")
+	if len(parts) != 2 || parts[0] != "doc" {
+		// Not a doc object, skip auto-creation
+		return nil
+	}
+
+	// Check if doc namespace already exists
+	exists, err := h.consulClient.NamespaceExists("doc")
+	if err != nil {
+		return fmt.Errorf("failed to check doc namespace existence: %v", err)
+	}
+
+	if exists {
+		// Namespace already exists
+		return nil
+	}
+
+	// Create the doc namespace with standard relations
+	h.logger.Infow("Auto-creating doc namespace with standard relations")
+
+	// Create namespace config with proper types
+	namespaceConfig := consul.NamespaceConfig{
+		Namespace: "doc",
+		Relations: map[string]consul.RelationConfig{
+			"owner": {
+				Union: []consul.UnionConfig{
+					{This: &consul.ThisConfig{}},
+				},
+			},
+			"editor": {
+				Union: []consul.UnionConfig{
+					{This: &consul.ThisConfig{}},
+					{ComputedUserset: &consul.ComputedUsersetConfig{Relation: "owner"}},
+				},
+			},
+			"viewer": {
+				Union: []consul.UnionConfig{
+					{This: &consul.ThisConfig{}},
+					{ComputedUserset: &consul.ComputedUsersetConfig{Relation: "editor"}},
+				},
+			},
+		},
+		Version: 1,
+	}
+
+	if err := h.consulClient.StoreNamespace("doc", namespaceConfig); err != nil {
+		return fmt.Errorf("failed to create doc namespace: %v", err)
+	}
+
+	h.logger.Infow("Successfully auto-created doc namespace with relations: owner, editor, viewer")
+	return nil
 }

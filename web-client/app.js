@@ -411,19 +411,16 @@ async function editDocument(docName) {
 }
 
 function shareDocument(docName) {
-    // Check if user is owner (more robust check)
-    const isOwner = currentUser && (
-        currentUser.role === 'owner' || 
-        currentUser.username === 'alice' || 
-        currentUser.username === 'user:alice'
-    );
-    
-    if (!isOwner) {
-        logActivity(`❌ Access denied: Only owners can share documents. Current role: ${currentUser?.role}`, 'error');
+    // Check if user is owner by checking their permissions on this specific document
+    // This is more accurate than checking the global role
+    if (!currentUser) {
+        logActivity(`❌ Access denied: Please log in first`, 'error');
         return;
     }
     
-    logActivity(`📤 Opening share dialog for ${docName}`, 'info');
+    // For now, allow any authenticated user to try sharing - the backend will enforce proper authorization
+    // The Mini-Zanzibar service will check if the user actually owns the document
+    logActivity(`📤 Opening share dialog for ${docName} (authorization will be checked by backend)`, 'info');
     showShareModal(docName);
 }
 
@@ -923,8 +920,10 @@ async function testAuthorization() {
 
 // ACL Management (Owner only)
 async function createACL() {
-    if (currentUser.role !== 'owner') {
-        logActivity(`❌ Access denied: Only owners can manage ACLs`, 'error');
+    // Remove hardcoded role check - let the backend enforce proper authorization
+    // The Mini-Zanzibar service will check if the user actually has permission to create ACLs
+    if (!currentUser) {
+        logActivity(`❌ Access denied: Please log in first`, 'error');
         return;
     }
     

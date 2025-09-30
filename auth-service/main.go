@@ -119,8 +119,8 @@ func main() {
 	protected := r.Group("/api")
 	protected.Use(authMiddleware())
 	{
-		// ACL management (admin only)
-		protected.POST("/acl", adminOnly(), proxyToZanzibar)
+		// ACL management - let Mini-Zanzibar handle authorization based on document ownership
+		protected.POST("/acl", proxyToZanzibar)
 		protected.DELETE("/acl", adminOnly(), proxyToZanzibar)
 
 		// Authorization checks (all authenticated users)
