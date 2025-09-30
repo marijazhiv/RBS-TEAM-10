@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -9,7 +10,11 @@ import (
 
 // Logger returns a gin.HandlerFunc that logs requests using zap
 func Logger(logger *zap.SugaredLogger) gin.HandlerFunc {
-	return gin.LoggerWithWriter(gin.DefaultWriter)
+	fmt.Printf("=== Logger middleware initialized ===\n")
+	return gin.HandlerFunc(func(c *gin.Context) {
+		fmt.Printf("=== Logger middleware executing for %s %s ===\n", c.Request.Method, c.Request.URL.Path)
+		c.Next()
+	})
 	// TODO: Implement custom zap-based logging middleware
 	// This should log request details, response status, and timing
 }
@@ -42,6 +47,37 @@ func RateLimit(requests int, window time.Duration) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// TODO: Implement rate limiting middleware
 		// Should track requests per IP/user and enforce limits
+		c.Next()
+	}
+}
+
+// UserContext extracts user information from headers and sets it in the context
+// This middleware handles authentication context from the auth service
+func UserContext() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		fmt.Printf("=== UserContext middleware executing ===\n")
+
+		// Debug: Log all headers
+		for key, values := range c.Request.Header {
+			for _, value := range values {
+				if key == "X-User-ID" || key == "X-User-Role" {
+					fmt.Printf("DEBUG: Header %s: %s\n", key, value)
+				}
+			}
+		}
+
+		// Extract user ID from header (set by auth service)
+		userID := c.GetHeader("X-User-ID")
+		fmt.Printf("DEBUG: Extracted X-User-ID: '%s'\n", userID)
+
+		if userID != "" {
+			c.Set("user", userID)
+			fmt.Printf("DEBUG: Set user context to: '%s'\n", userID)
+		} else {
+			fmt.Printf("DEBUG: No X-User-ID header found\n")
+		}
+
+		fmt.Printf("=== UserContext middleware completed ===\n")
 		c.Next()
 	}
 }

@@ -208,3 +208,26 @@ func (c *Client) getVersionedKey(namespace string, version int) string {
 func (c *Client) getLatestKey(namespace string) string {
 	return path.Join("zanzibar/namespaces", namespace, "latest")
 }
+
+// NamespaceExists checks if a namespace exists
+func (c *Client) NamespaceExists(namespace string) (bool, error) {
+	// Try to get the latest version - if it returns version 0, namespace doesn't exist
+	version, err := c.getLatestVersion(namespace)
+	if err != nil {
+		return false, fmt.Errorf("failed to check namespace existence: %w", err)
+	}
+
+	return version > 0, nil
+}
+
+// RelationExists check if a relation is valid for a namespace
+func (c *Client) RelationExists(namespace, relation string) (bool, error) {
+	// Get the namespace configuration
+	config, err := c.GetNamespace(namespace)
+	if err != nil {
+		return false, fmt.Errorf("failed to get namespace: %w", err)
+	}
+
+	_, exists := config.Relations[relation]
+	return exists, nil
+}
