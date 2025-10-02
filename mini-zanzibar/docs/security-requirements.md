@@ -105,7 +105,7 @@ Svi ulazi su pravilno validirani i sanitizovani.
 
 Sve konfiguracije su bezbednosti pravilno implementirane.
 
-### **A06: Ranljive i zastarele komponente**
+### **A06: Ranjive i zastarele komponente**
 
 **Trenutni status:**
 
