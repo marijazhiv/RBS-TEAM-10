@@ -151,7 +151,7 @@ Implementiran sistem autentikacije i sesija.
 
 * Provere integriteta kritičnih podataka
 
-* CI/CD pipeline sa bezbednosnim skeniranjem \- 
+* CI/CD pipeline sa bezbednosnim skeniranjem \ - (izolacija Redisa u Dockeru)
 
 ### **A09: Neuspešno logovanje i monitoring**
 
