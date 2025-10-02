@@ -62,9 +62,9 @@ Svi API endpointi su. zaštićeni autentikacijom i autorizacijom
 
 * Ispravno parsiranje JSON-a sa hvatanjem grešaka
 
-* Sanitizacija i validacija zahteva
+* Čišćenje i validacija zahteva
 
-Svi ulazi su pravilno validirani i sanitizovani.
+Svi ulazi su pravilno validirani i očišćeni.
 
 ### **A04: Nesiguran dizajn**
 
