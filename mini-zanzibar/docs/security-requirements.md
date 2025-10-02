@@ -62,9 +62,9 @@ Svi API endpointi su. zaštićeni autentikacijom i autorizacijom
 
 * Ispravno parsiranje JSON-a sa hvatanjem grešaka
 
-* Sanitizacija i validacija zahteva
+* Čišćenje i validacija zahteva
 
-Svi ulazi su pravilno validirani i sanitizovani.
+Svi ulazi su pravilno validirani i očišćeni.
 
 ### **A04: Nesiguran dizajn**
 
@@ -78,7 +78,7 @@ Svi ulazi su pravilno validirani i sanitizovani.
 
 **Preporuke:**
 
-* Uvesti formalno modelovanje pretnji \- urađen model threading.  
+* Uvesti formalno modelovanje pretnji \- urađen threat modeling.  
 * Redovno raditi bezbednosne preglede dizajna \- implementirano skeniranje softvera Github CodeQL alatom za statičku analizu koda
 
 ### **A05: Pogrešna konfiguracija bezbednosti**
@@ -151,7 +151,7 @@ Implementiran sistem autentikacije i sesija.
 
 * Provere integriteta kritičnih podataka
 
-* CI/CD pipeline sa bezbednosnim skeniranjem \- 
+* CI/CD pipeline sa bezbednosnim skeniranjem \- (Redis baza izolovana u Docker-u)
 
 ### **A09: Neuspešno logovanje i monitoring**
 
