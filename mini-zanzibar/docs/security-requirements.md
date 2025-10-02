@@ -78,7 +78,7 @@ Svi ulazi su pravilno validirani i očišćeni.
 
 **Preporuke:**
 
-* Uvesti formalno modelovanje pretnji \- urađen model threading.  
+* Uvesti formalno modelovanje pretnji \- urađen threat modeling.  
 * Redovno raditi bezbednosne preglede dizajna \- implementirano skeniranje softvera Github CodeQL alatom za statičku analizu koda
 
 ### **A05: Pogrešna konfiguracija bezbednosti**
